@@ -3,7 +3,7 @@
 
 matrix_synapse_enabled: true
 
-matrix_synapse_docker_image: "matrixdotorg/synapse:v1.6.1"
+matrix_synapse_docker_image: "matrixdotorg/synapse:v1.9.1"
 matrix_synapse_docker_image_force_pull: "{{ matrix_synapse_docker_image.endswith(':latest') }}"
 
 matrix_synapse_base_path: "{{ matrix_base_data_path }}/synapse"
@@ -39,6 +39,13 @@ matrix_synapse_container_federation_api_tls_host_bind_port: ''
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9100"), or empty string to not expose.
 matrix_synapse_container_metrics_api_host_bind_port: ''
+
+# Controls whether the matrix-synapse container exposes the manhole port (tcp/9000 in the container).
+#
+# Takes effect only if the manhole is enabled (matrix_synapse_manhole_enabled).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:9100"), or empty string to not expose.
+matrix_synapse_container_manhole_api_host_bind_port: ''
 
 # A list of extra arguments to pass to the container
 matrix_synapse_container_extra_arguments: []
@@ -194,7 +201,7 @@ matrix_synapse_federation_domain_whitelist: ~
 #
 # Note: internally, this uses the `-v` flag for mounting the specified volumes.
 # It's better (safer) to use the `--mount` flag for mounting volumes.
-# To use `--mount`, specifiy it in `matrix_synapse_container_extra_arguments`.
+# To use `--mount`, specify it in `matrix_synapse_container_extra_arguments`.
 # Example: `matrix_synapse_container_extra_arguments: ['--mount type=bind,src=/outside,dst=/inside,ro']
 matrix_synapse_container_additional_volumes: []
 
@@ -222,9 +229,14 @@ matrix_synapse_push_include_content: true
 matrix_synapse_url_preview_enabled: true
 
 # Enable exposure of metrics to Prometheus
-# See https://github.com/matrix-org/synapse/blob/master/docs/metrics-howto.rst
+# See https://github.com/matrix-org/synapse/blob/master/docs/metrics-howto.md
 matrix_synapse_metrics_enabled: false
 matrix_synapse_metrics_port: 9100
+
+# Enable the Synapse manhole
+# See https://github.com/matrix-org/synapse/blob/master/docs/manhole.md
+matrix_synapse_manhole_enabled: false
+
 
 # Send ERROR logs to sentry.io for easier tracking
 # To set this up: go to sentry.io, create a python project, and set
@@ -247,13 +259,13 @@ matrix_synapse_email_smtp_host: ""
 matrix_synapse_email_smtp_port: 587
 matrix_synapse_email_smtp_require_transport_security: false
 matrix_synapse_email_notif_from: "Matrix <matrix@{{ matrix_domain }}>"
-matrix_synapse_email_riot_base_url: "https://{{ matrix_server_fqn_riot }}"
+matrix_synapse_email_client_base_url: "https://{{ matrix_server_fqn_riot }}"
 
 
 # Enable this to activate the REST auth password provider module.
-# See: https://github.com/kamax-io/matrix-synapse-rest-auth
+# See: https://github.com/ma1uta/matrix-synapse-rest-password-provider
 matrix_synapse_ext_password_provider_rest_auth_enabled: false
-matrix_synapse_ext_password_provider_rest_auth_download_url: "https://raw.githubusercontent.com/kamax-io/matrix-synapse-rest-auth/v0.1.2/rest_auth_provider.py"
+matrix_synapse_ext_password_provider_rest_auth_download_url: "https://raw.githubusercontent.com/ma1uta/matrix-synapse-rest-password-provider/ed377fb70513c2e51b42055eb364195af1ccaf33/rest_auth_provider.py"
 matrix_synapse_ext_password_provider_rest_auth_endpoint: ""
 matrix_synapse_ext_password_provider_rest_auth_registration_enforce_lowercase: false
 matrix_synapse_ext_password_provider_rest_auth_registration_profile_name_autofill: true
