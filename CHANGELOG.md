@@ -1,3 +1,92 @@
+# 2020-11-13
+
+## Breaking change matrix-sms-bridge
+
+The new version of [matrix-sms-bridge](https://github.com/benkuly/matrix-sms-bridge) changed its database from neo4j to h2. You need to sync the bridge at the first start. Note that this only will sync rooms where the @smsbot:yourServer is member. For rooms without @smsbot:yourServer you need to kick and invite the telephone number **or** invite @smsbot:yourServer.
+
+1. Add the following to your `vars.yml` file: `matrix_sms_bridge_container_extra_arguments=['--env SPRING_PROFILES_ACTIVE=initialsync']`
+2. Login to your host shell and remove old systemd file from your host: `rm /etc/systemd/system/matrix-sms-bridge-database.service`
+2. Run `ansible-playbook -i inventory/hosts setup.yml --tags=setup-matrix-sms-bridge,start`
+3. Login to your host shell and check the logs with `journalctl -u matrix-sms-bridge` until the sync finished.
+4. Remove the var from the first step.
+5. Run `ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start`.
+
+# 2020-11-10
+
+## Dynamic DNS support
+
+Thanks to [Scott Crossen](https://github.com/scottcrossen), the playbook can now manage Dynamic DNS for you using [ddclient](https://ddclient.net/).
+
+To learn more, follow our [Dynamic DNS docs page](docs/configuring-playbook-dynamic-dns.md).
+
+
+# 2020-10-28
+
+## (Compatibility Break) https://matrix.DOMAIN/ now redirects to https://element.DOMAIN/
+
+Until now, we used to serve a static page coming from Synapse at `https://matrix.DOMAIN/`. This page was not very useful to anyone.
+
+Since `matrix.DOMAIN` may be accessed by regular users in certain conditions, it's probably better to redirect them to a better place (e.g. to the [Element](docs/configuring-playbook-client-element.md) client).
+
+If Element is installed (`matrix_client_element_enabled: true`, which it is by default), we now redirect people to it, instead of showing them a Synapse static page.
+
+If you'd like to control where the redirect goes, use the `matrix_nginx_proxy_proxy_matrix_client_redirect_root_uri_to_domain` variable.
+To restore the old behavior of not redirecting anywhere and serving the Synapse static page, set it to an empty value (`matrix_nginx_proxy_proxy_matrix_client_redirect_root_uri_to_domain: ""`).
+
+
+# 2020-10-26
+
+## (Compatibility Break) /_synapse/admin is no longer publicly exposed by default
+
+We used to expose the Synapse Admin APIs publicly (at `https://matrix.DOMAIN/_synapse/admin`).
+These APIs require authentication with a valid access token, so it's not that big a deal to expose them.
+
+However, following [official Synapse's reverse-proxying recommendations](https://github.com/matrix-org/synapse/blob/master/docs/reverse_proxy.md#synapse-administration-endpoints), we're no longer exposing `/_synapse/admin` by default.
+
+If you'd like to restore restore the old behavior and expose `/_synapse/admin` publicly, you can use the following configuration (in your `vars.yml`):
+
+```yaml
+matrix_nginx_proxy_proxy_matrix_client_api_forwarded_location_synapse_admin_api_enabled: true
+```
+
+
+# 2020-10-02
+
+## Minimum Ansible version raised to v2.7.0
+
+We were claiming to support [Ansible](https://www.ansible.com/) v2.5.2 and higher, but issues like [#662](https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/662) demonstrate that we need at least v2.7.0.
+
+If you've been using the playbook without getting any errors until now, you're probably on a version higher than that already (or you're not using the `matrix-ma1sd` and `matrix-client-element` roles).
+
+Our [Ansible docs page](docs/ansible.md) contains information on how to run a more up-to-date version of Ansible.
+
+
+# 2020-10-01
+
+## Postgres 13 support
+
+The playbook now installs [Postgres 13](https://www.postgresql.org/about/news/postgresql-13-released-2077/) by default.
+
+If you have have an existing setup, it's likely running on an older Postgres version (9.x, 10.x, 11.x or 12.x). You can easily upgrade by following the [upgrading PostgreSQL guide](docs/maintenance-postgres.md#upgrading-postgresql).
+
+# 2020-09-01
+
+## matrix-registration support
+
+The playbook can now help you set up [matrix-registration](https://github.com/ZerataX/matrix-registration) - an application that lets you keep your Matrix server's registration private, but still allow certain users (those having a unique registration link) to register by themselves.
+
+See our [Setting up matrix-registration](docs/configuring-playbook-matrix-registration.md) documentation page to get started.
+
+
+# 2020-08-21
+
+## rust-synapse-compress-state support
+
+The playbook can now help you use [rust-synapse-compress-state](https://github.com/matrix-org/rust-synapse-compress-state) to compress the state groups in your Synapse database.
+
+See our [Compressing state with rust-synapse-compress-state](docs/maintenance-synapse.md#compressing-state-with-rust-synapse-compress-state) documentation page to get started.
+
+
 # 2020-07-22
 
 ## Synapse Admin support
@@ -78,7 +167,7 @@ To reuse your existing rooms, invite `@smsbot:yourServer` to the room or write a
 
 Thanks to [benkuly](https://github.com/benkuly)'s efforts, the playbook now supports bridging to SMS (with one telephone number only) via [matrix-sms-bridge](https://github.com/benkuly/matrix-sms-bridge).
 
-See our [Setting up Matrix SMS bridging](docs/configuring-playbook-matrix-bridge-sms.md) documentation page for getting started.
+See our [Setting up Matrix SMS bridging](docs/configuring-playbook-bridge-matrix-bridge-sms.md) documentation page for getting started.
 
 
 # 2020-05-19

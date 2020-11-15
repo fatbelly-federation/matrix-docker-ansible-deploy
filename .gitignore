@@ -3,3 +3,5 @@
 !/inventory/scripts
 /roles/*/files/scratchpad
 /inventory/*/vars.yml
+.DS_Store
+.python-version

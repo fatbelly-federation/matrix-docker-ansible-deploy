@@ -16,9 +16,7 @@
 #
 ######################################################################
 
-matrix_identity_server_url: "{{ 'https://' + matrix_synapse_trusted_third_party_id_servers[0] if matrix_synapse_trusted_third_party_id_servers|length > 0 else None }}"
-
-matrix_riot_jitsi_preferredDomain: "{{ matrix_server_fqn_jitsi if matrix_jitsi_enabled else '' }}"
+matrix_identity_server_url: "{{ ('https://' + matrix_server_fqn_matrix) if matrix_ma1sd_enabled else None }}"
 
 ######################################################################
 #
@@ -621,6 +619,23 @@ matrix_dimension_homeserver_federationUrl: "http://matrix-synapse:{{ 8048 if mat
 ######################################################################
 
 
+
+######################################################################
+#
+# matrix-dynamic-dns
+#
+######################################################################
+
+matrix_dynamic_dns_enabled: false
+
+######################################################################
+#
+# /matrix-dynamic-dns
+#
+######################################################################
+
+
+
 ######################################################################
 #
 # matrix-email2matrix
@@ -737,7 +752,7 @@ matrix_ma1sd_threepid_medium_email_connectors_smtp_host: "matrix-mailer"
 matrix_ma1sd_threepid_medium_email_connectors_smtp_port: 8025
 matrix_ma1sd_threepid_medium_email_connectors_smtp_tls: 0
 
-matrix_ma1sd_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else false }}"
+matrix_ma1sd_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else true }}"
 
 matrix_ma1sd_systemd_wanted_services_list: |
   {{
@@ -771,6 +786,10 @@ matrix_nginx_proxy_proxy_matrix_client_api_addr_with_container: "{{ 'matrix-corp
 matrix_nginx_proxy_proxy_matrix_client_api_addr_sans_container: "{{ '127.0.0.1:41080' if matrix_corporal_enabled else '127.0.0.1:8008' }}"
 matrix_nginx_proxy_proxy_matrix_client_api_client_max_body_size_mb: "{{ matrix_synapse_max_upload_size_mb }}"
 
+matrix_nginx_proxy_proxy_matrix_client_api_forwarded_location_synapse_admin_api_enabled: "{{ matrix_synapse_admin_enabled }}"
+
+matrix_nginx_proxy_proxy_matrix_client_redirect_root_uri_to_domain: "{{ matrix_server_fqn_element if matrix_client_element_enabled else '' }}"
+
 matrix_nginx_proxy_proxy_matrix_enabled: true
 matrix_nginx_proxy_proxy_element_enabled: "{{ matrix_client_element_enabled }}"
 matrix_nginx_proxy_proxy_dimension_enabled: "{{ matrix_dimension_enabled }}"
@@ -799,7 +818,7 @@ matrix_nginx_proxy_proxy_matrix_user_directory_search_enabled: "{{ matrix_ma1sd_
 matrix_nginx_proxy_proxy_matrix_user_directory_search_addr_with_container: "{{ matrix_nginx_proxy_proxy_matrix_identity_api_addr_with_container }}"
 matrix_nginx_proxy_proxy_matrix_user_directory_search_addr_sans_container: "{{ matrix_nginx_proxy_proxy_matrix_identity_api_addr_sans_container }}"
 
-matrix_nginx_proxy_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else false }}"
+matrix_nginx_proxy_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else true }}"
 
 matrix_nginx_proxy_systemd_wanted_services_list: |
   {{
@@ -834,6 +853,8 @@ matrix_ssl_architecture: "{{
 		'arm64': 'arm64v8',
 	}[matrix_architecture]
 }}"
+
+matrix_ssl_pre_obtaining_required_service_name: "{{ 'matrix-dynamic-dns' if matrix_dynamic_dns_enabled else '' }}"
 
 ######################################################################
 #
@@ -890,7 +911,7 @@ matrix_client_element_integrations_rest_url: "{{ matrix_dimension_integrations_r
 matrix_client_element_integrations_widgets_urls: "{{ matrix_dimension_integrations_widgets_urls if matrix_dimension_enabled else ['https://scalar.vector.im/api'] }}"
 matrix_client_element_integrations_jitsi_widget_url: "{{ matrix_dimension_integrations_jitsi_widget_url if matrix_dimension_enabled else 'https://scalar.vector.im/api/widgets/jitsi.html' }}"
 
-matrix_client_element_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else false }}"
+matrix_client_element_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else true }}"
 
 matrix_client_element_registration_enabled: "{{ matrix_synapse_enable_registration }}"
 
@@ -919,10 +940,7 @@ matrix_client_element_jitsi_preferredDomain: "{{ matrix_server_fqn_jitsi if matr
 #
 ######################################################################
 
-matrix_synapse_container_image_self_build: "{{ matrix_architecture != 'amd64'}}"
-
-# When ma1sd is enabled, we can use it instead of the default public Identity servers.
-matrix_synapse_trusted_third_party_id_servers: "{{ [matrix_server_fqn_matrix] if matrix_ma1sd_enabled else matrix_synapse_id_servers_public }}"
+matrix_synapse_container_image_self_build: "{{ matrix_architecture not in ['arm32', 'arm64', 'amd64'] }}"
 
 # When ma1sd is enabled, we can use it to validate email addresses and phone numbers.
 # Synapse can validate email addresses by itself as well, but it's probably not what we want by default when we have an identity server.
@@ -988,7 +1006,7 @@ matrix_synapse_turn_uris: |
 
 matrix_synapse_turn_shared_secret: "{{ matrix_coturn_turn_static_auth_secret if matrix_coturn_enabled else '' }}"
 
-matrix_synapse_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else false }}"
+matrix_synapse_self_check_validate_certificates: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else true }}"
 
 matrix_synapse_systemd_required_services_list: |
   {{
@@ -1027,8 +1045,41 @@ matrix_synapse_admin_enabled: false
 # Synapse Admin's HTTP port to the local host.
 matrix_synapse_admin_container_http_host_bind_port: "{{ '' if matrix_nginx_proxy_enabled else '127.0.0.1:8766' }}"
 
+matrix_synapse_admin_container_self_build: "{{ matrix_architecture != 'amd64' }}"
+
 ######################################################################
 #
 # /matrix-synapse-admin
+#
+######################################################################
+
+
+
+######################################################################
+#
+# matrix-registration
+#
+######################################################################
+
+matrix_registration_enabled: false
+
+# Normally, matrix-nginx-proxy is enabled and nginx can reach matrix-registration over the container network.
+# If matrix-nginx-proxy is not enabled, or you otherwise have a need for it, you can expose
+# matrix-registration's HTTP port to the local host.
+matrix_registration_container_http_host_bind_port: "{{ '' if matrix_nginx_proxy_enabled else '127.0.0.1:8767' }}"
+
+matrix_registration_riot_instance: "{{ ('https://' + matrix_server_fqn_element) if matrix_client_element_enabled else 'https://riot.im/app/' }}"
+
+matrix_registration_shared_secret: "{{ matrix_synapse_registration_shared_secret if matrix_synapse_enabled else '' }}"
+
+matrix_registration_server_location: "{{ 'http://matrix-synapse:8008' if matrix_synapse_enabled else '' }}"
+
+matrix_registration_api_validate_certs: "{{ false if matrix_ssl_retrieval_method == 'self-signed' else true }}"
+
+matrix_registration_container_image_self_build: "{{ matrix_architecture != 'amd64' }}"
+
+######################################################################
+#
+# /matrix-registration
 #
 ######################################################################
