@@ -8,9 +8,11 @@ After={{ service }}
 {% for service in matrix_sms_bridge_systemd_wanted_services_list %}
 Wants={{ service }}
 {% endfor %}
+DefaultDependencies=no
 
 [Service]
 Type=simple
+Environment="HOME={{ matrix_systemd_unit_home_path }}"
 ExecStartPre=-/usr/bin/docker kill matrix-sms-bridge
 ExecStartPre=-/usr/bin/docker rm matrix-sms-bridge
 
