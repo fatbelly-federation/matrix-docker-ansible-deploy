@@ -49,6 +49,27 @@
 
 		tcp_nodelay on;
 	}
+
+	# XMPP websocket
+	location = /xmpp-websocket {
+		{% if matrix_nginx_proxy_enabled %}
+			resolver 127.0.0.11 valid=5s;
+			set $backend {{ matrix_jitsi_xmpp_bosh_url_base }};
+			proxy_pass $backend/xmpp-websocket;
+		{% else %}
+			{# Generic configuration for use outside of our container setup #}
+			proxy_pass http://127.0.0.1:5280;
+		{% endif %}
+		proxy_set_header Host $host;
+
+		proxy_http_version 1.1;
+		proxy_read_timeout 900s;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header X-Forwarded-For $remote_addr;
+		proxy_set_header X-Forwarded-Proto $scheme;
+		tcp_nodelay on;
+	}
 {% endmacro %}
 
 server {
@@ -97,6 +118,12 @@ server {
 	ssl_ciphers {{ matrix_nginx_proxy_ssl_ciphers }};
 	{% endif %}
 	ssl_prefer_server_ciphers {{ matrix_nginx_proxy_ssl_prefer_server_ciphers }};
+
+	{% if matrix_nginx_proxy_ocsp_stapling_enabled %}
+		ssl_stapling on;
+		ssl_stapling_verify on;
+		ssl_trusted_certificate {{ matrix_ssl_config_dir_path }}/live/{{ matrix_nginx_proxy_proxy_jitsi_hostname }}/chain.pem;
+	{% endif %}
 
 	{{ render_vhost_directives() }}
 }
