@@ -16,6 +16,7 @@
   git:
     repo: "{{ matrix_synapse_admin_container_self_build_repo }}"
     dest: "{{ matrix_synapse_admin_docker_src_files_path }}"
+    version: "{{ matrix_synapse_admin_docker_image.split(':')[1] }}"
     force: "yes"
   register: matrix_synapse_admin_git_pull_results
   when: "matrix_synapse_admin_enabled|bool and matrix_synapse_admin_container_self_build|bool"
@@ -24,7 +25,8 @@
   docker_image:
     name: "{{ matrix_synapse_admin_docker_image }}"
     source: build
-    force_source: "{{ matrix_synapse_admin_git_pull_results.changed }}"
+    force_source: "{{ matrix_synapse_admin_git_pull_results.changed if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else matrix_synapse_admin_git_pull_results.changed }}"
     build:
       dockerfile: Dockerfile
       path: "{{ matrix_synapse_admin_docker_src_files_path }}"

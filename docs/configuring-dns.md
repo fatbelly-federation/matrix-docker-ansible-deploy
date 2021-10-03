@@ -31,11 +31,12 @@ If you are using Cloudflare DNS, make sure to disable the proxy and set all reco
 | Type  | Host                         | Priority | Weight | Port | Target                 |
 | ----- | ---------------------------- | -------- | ------ | ---- | ---------------------- |
 | SRV   | `_matrix-identity._tcp`      | 10       | 0      | 443  | `matrix.<your-domain>` |
-| CNAME | `dimension` (*)              | -        | -      | -    | `matrix.<your-domain>` |
-| CNAME | `jitsi` (*)                  | -        | -      | -    | `matrix.<your-domain>` |
-| CNAME | `stats` (*)                  | -        | -      | -    | `matrix.<your-domain>` |
-| CNAME | `goneb` (*)                  | -        | -      | -    | `matrix.<your-domain>` |
-| CNAME | `sygnal` (*)                 | -        | -      | -    | `matrix.<your-domain>` |
+| CNAME | `dimension`                  | -        | -      | -    | `matrix.<your-domain>` |
+| CNAME | `jitsi`                      | -        | -      | -    | `matrix.<your-domain>` |
+| CNAME | `stats`                      | -        | -      | -    | `matrix.<your-domain>` |
+| CNAME | `goneb`                      | -        | -      | -    | `matrix.<your-domain>` |
+| CNAME | `sygnal`                     | -        | -      | -    | `matrix.<your-domain>` |
+| CNAME | `hydrogen`                   | -        | -      | -    | `matrix.<your-domain>` |
 
 ## Subdomains setup
 
@@ -54,6 +55,8 @@ The `goneb.<your-domain>` subdomain may be necessary, because this playbook coul
 
 The `sygnal.<your-domain>` subdomain may be necessary, because this playbook could install the [Sygnal](https://github.com/matrix-org/sygnal) push gateway. The installation of Sygnal is disabled by default, it is not a core required component. To learn how to install it, see our [configuring Sygnal guide](configuring-playbook-sygnal.md). If you do not wish to set up Sygnal (you probably don't, unless you're also developing/building your own Matrix apps), feel free to skip the `sygnal.<your-domain>` DNS record.
 
+The `hydrogen.<your-domain>` subdomain may be necessary, because this playbook could install the [Hydrogen](https://github.com/vector-im/hydrogen-web) web client. The installation of Hydrogen is disabled by default, it is not a core required component. To learn how to install it, see our [configuring Hydrogen guide](configuring-playbook-client-hydrogen.md). If you do not wish to set up Hydrogen, feel free to skip the `hydrogen.<your-domain>` DNS record.
+
 
 ## `_matrix-identity._tcp` SRV record setup
 
@@ -65,4 +68,4 @@ This is an optional feature. See [ma1sd's documentation](https://github.com/ma1u
 
 Note: This `_matrix-identity._tcp` SRV record for the identity server is different from the `_matrix._tcp` that can be used for Synapse delegation. See [howto-server-delegation.md](howto-server-delegation.md) for more information about delegation.
 
-When you're done with the DNS configuration and ready to proceed, continue with [Configuring this Ansible playbook](configuring-playbook.md).
+When you're done with the DNS configuration and ready to proceed, continue with [Getting the playbook](getting-the-playbook.md).

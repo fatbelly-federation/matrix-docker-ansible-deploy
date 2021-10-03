@@ -1,3 +1,48 @@
+# 2021-08-23
+
+## LinkedIn bridging support via beeper-linkedin
+
+Thanks to [Alexandar Mechev](https://github.com/apmechev), the playbook can now install the [beeper-linkedin](https://gitlab.com/beeper/linkedin) bridge for bridging to [LinkedIn](https://www.linkedin.com/) Messaging.
+
+This brings the total number of bridges supported by the playbook up to 20. See all supported bridges [here](docs/configuring-playbook.md#bridging-other-networks).
+
+To get started with bridging to LinkedIn, see [Setting up Beeper LinkedIn bridging](docs/configuring-playbook-bridge-beeper-linkedin.md).
+
+
+# 2021-08-20
+
+# Sygnal upgraded - ARM support and no longer requires a database
+
+The [Sygnal](docs/configuring-playbook-sygnal.md) push gateway has been upgraded from `v0.9.0` to `v0.10.1`.
+
+This is an optional component for the playbook, so most of our users wouldn't care about this announcement.
+
+Since this feels like a relatively big (and untested, as of yet) Sygnal change, we're putting up this changelog entry.
+
+The new version is also available for the ARM architecture. It also no longer requires a database anymore.
+If you need to downgrade to the previous version, changing `matrix_sygnal_version` or `matrix_sygnal_docker_image` will not be enough, as we've removed the `database` configuration completely. You'd need to switch to an earlier playbook commit.
+
+
+# 2021-05-21
+
+## Hydrogen support
+
+Thanks to [Aaron Raimist](https://github.com/aaronraimist), the playbook now supports [Hydrogen](https://github.com/vector-im/hydrogen-web) - a new lightweight matrix client with legacy and mobile browser support.
+
+By default, we still install Element, as Hydrogen is still not fully-featured. Still, people who'd like to try Hydrogen out can now install it via the playbook.
+
+Additional details are available in [Setting up Hydrogen](docs/configuring-playbook-client-hydrogen.md).
+
+
+# 2021-05-19
+
+## Heisenbridge support
+
+Thanks to [Toni Spets (hifi)](https://github.com/hifi), the playbook now supports bridging to [IRC](https://en.wikipedia.org/wiki/Internet_Relay_Chat) using yet another bridge (besides matrix-appservice-irc), called [Heisenbridge](https://github.com/hifi/heisenbridge).
+
+Additional details are available in [Setting up Heisenbridge bouncer-style IRC bridging](docs/configuring-playbook-bridge-heisenbridge.md).
+
+
 # 2021-04-16
 
 ## Disabling TLSv1 and TLSv1.1 for Coturn
