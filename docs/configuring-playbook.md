@@ -69,6 +69,7 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 - [Adjusting email-sending settings](configuring-playbook-email.md) (optional)
 
 - [Setting up Hydrogen](configuring-playbook-client-hydrogen.md) - a new lightweight matrix client with legacy and mobile browser support (optional)
+- [Setting up Cinny](configuring-playbook-client-cinny.md) - a web client focusing primarily on simple, elegant and secure interface (optional)
 
 
 ### Authentication and user-related
@@ -116,6 +117,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Appservice Webhooks bridging](configuring-playbook-bridge-appservice-webhooks.md) (optional)
 
+- [Setting up matrix-hookshot](configuring-playbook-bridge-hookshot.md) - a bridge between Matrix and multiple project management services, such as [GitHub](https://github.com), [GitLab](https://about.gitlab.com) and [JIRA](https://www.atlassian.com/software/jira). (optional)
+
 - [Setting up MX Puppet Skype bridging](configuring-playbook-bridge-mx-puppet-skype.md) (optional)
 
 - [Setting up MX Puppet Slack bridging](configuring-playbook-bridge-mx-puppet-slack.md) (optional)
@@ -140,6 +143,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 ### Bots
 
 - [Setting up matrix-reminder-bot](configuring-playbook-bot-matrix-reminder-bot.md) - a bot to remind you about stuff (optional)
+
+- [Setting up honoroit](configuring-playbook-bot-honoroit.md) - a helpdesk bot (optional)
 
 - [Setting up Go-NEB](configuring-playbook-bot-go-neb.md) - an extensible multifunctional bot (optional)
 
