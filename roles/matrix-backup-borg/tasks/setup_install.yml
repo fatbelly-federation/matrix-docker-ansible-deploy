@@ -24,6 +24,17 @@
     - {path: "{{ matrix_backup_borg_docker_src_files_path }}", when: true}
   when: "item.when|bool"
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+  file:
+    path: "{{ item }}"
+    state: touch
+  with_items:
+    - "{{ matrix_backup_borg_config_path }}/config.yaml"
+    - "{{ matrix_backup_borg_config_path }}/passwd"
+    - "{{ matrix_backup_borg_config_path }}/sshkey"
+
 - name: Ensure borgmatic config is created
   copy:
     content: "{{ matrix_backup_borg_configuration|to_nice_yaml(indent=2, width=999999) }}"
