@@ -67,7 +67,7 @@ Using this playbook, you can get the following services configured on your serve
 
 - (optional) the [mautrix-signal](https://github.com/mautrix/signal) bridge for bridging your Matrix server to [Signal](https://www.signal.org/)
 
-- (optional) the [beeper-linkedin](https://gitlab.com/beeper/linkedin) bridge for bridging your Matrix server to [LinkedIn](https://www.linkedin.com/)
+- (optional) the [beeper-linkedin](https://github.com/beeper/linkedin) bridge for bridging your Matrix server to [LinkedIn](https://www.linkedin.com/)
 
 - (optional) the [matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc) bridge for bridging your Matrix server to [IRC](https://wikipedia.org/wiki/Internet_Relay_Chat)
 
@@ -113,6 +113,8 @@ Using this playbook, you can get the following services configured on your serve
 
 - (optional) [honoroit](https://gitlab.com/etke.cc/honoroit) helpdesk bot - see [docs/configuring-playbook-bot-honoroit.md](docs/configuring-playbook-bot-honoroit.md) for setup documentation
 
+- (optional) [Postmoogle](https://gitlab.com/etke.cc/postmoogle) email to matrix bot - see [docs/configuring-playbook-bot-postmoogle.md](docs/configuring-playbook-bot-postmoogle.md) for setup documentation
+
 - (optional) [Go-NEB](https://github.com/matrix-org/go-neb) multi functional bot written in Go - see [docs/configuring-playbook-bot-go-neb.md](docs/configuring-playbook-bot-go-neb.md) for setup documentation
 
 - (optional) [Mjolnir](https://github.com/matrix-org/mjolnir), a moderation tool for Matrix - see [docs/configuring-playbook-bot-mjolnir.md](docs/configuring-playbook-bot-mjolnir.md) for setup documentation
@@ -134,6 +136,8 @@ Using this playbook, you can get the following services configured on your serve
 - (optional) the [Borg](https://borgbackup.org) backup - see [docs/configuring-playbook-backup-borg.md](docs/configuring-playbook-backup-borg.md) for setup documentation
 
 - (optional) the [Buscarron](https://gitlab.com/etke.cc/buscarron) bot - see [docs/configuring-playbook-bot-buscarron.md](docs/configuring-playbook-bot-buscarron.md) for setup documentation
+
+- (optional) [Cactus Comments](https://cactus.chat), a federated comment system built on matrix - see [docs/configuring-playbook-cactus-comments.md](docs/configuring-playbook-cactus-comments.md) for setup documentation
 
 Basically, this playbook aims to get you up-and-running with all the necessities around Matrix, without you having to do anything else.
 

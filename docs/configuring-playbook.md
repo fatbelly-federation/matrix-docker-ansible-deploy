@@ -143,6 +143,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Email2Matrix](configuring-playbook-email2matrix.md) (optional)
 
+- [Setting up Postmoogle email bridging](configuring-playbook-bot-postmoogle.md) (optional)
+
 - [Setting up Matrix SMS bridging](configuring-playbook-bridge-matrix-bridge-sms.md) (optional)
 
 - [Setting up Heisenbridge bouncer-style IRC bridging](configuring-playbook-bridge-heisenbridge.md) (optional)
@@ -177,3 +179,5 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 - [Setting up the Sygnal push gateway](configuring-playbook-sygnal.md) (optional)
 
 - [Setting up the ntfy push notifications server](configuring-playbook-ntfy.md) (optional)
+
+- [Setting up a Cactus Comments server](configuring-playbook-cactus-comments.md) - a federated comment system built on Matrix (optional)

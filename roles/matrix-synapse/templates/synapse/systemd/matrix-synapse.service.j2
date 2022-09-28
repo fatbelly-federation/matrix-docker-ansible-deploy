@@ -12,7 +12,7 @@ Wants={{ service }}
 
 {% if matrix_synapse_workers_enabled %}
 {% for matrix_synapse_worker_details in matrix_synapse_workers_enabled_list %}
-Wants=matrix-synapse-worker-{{ matrix_synapse_worker_details.type }}-{{ matrix_synapse_worker_details.port }}.service
+Wants={{ matrix_synapse_worker_details.name }}.service
 {% endfor %}
 {% endif %}
 
@@ -57,7 +57,7 @@ ExecStart={{ matrix_host_command_docker }} run --rm --name matrix-synapse \
 			{% for volume in matrix_synapse_container_additional_volumes %}
 			-v {{ volume.src }}:{{ volume.dst }}:{{ volume.options }} \
 			{% endfor %}
-			{% for arg in matrix_synapse_container_extra_arguments %}
+			{% for arg in matrix_synapse_container_arguments %}
 			{{ arg }} \
 			{% endfor %}
 			{{ matrix_synapse_docker_image }} \

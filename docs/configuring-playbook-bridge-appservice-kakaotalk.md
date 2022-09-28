@@ -2,6 +2,8 @@
 
 The playbook can install and configure [matrix-appservice-kakaotalk](https://src.miscworks.net/fair/matrix-appservice-kakaotalk) for you. `matrix-appservice-kakaotalk` is a bridge to [Kakaotalk](https://www.kakaocorp.com/page/service/service/KakaoTalk?lang=ENG) based on [node-kakao](https://github.com/storycraft/node-kakao) (now unmaintained) and some [mautrix-facebook](https://github.com/mautrix/facebook) code.
 
+**NOTE**: there have been recent reports (~2022-09-16) that **using this bridge may get your account banned**.
+
 See the project's [documentation](https://src.miscworks.net/fair/matrix-appservice-kakaotalk) to learn what it does and why it might be useful to you.
 
 
@@ -46,13 +48,7 @@ This is the recommended way of setting up Double Puppeting, as it's easier to ac
 
 When using this method, **each user** that wishes to enable Double Puppeting needs to follow the following steps:
 
-- retrieve a Matrix access token for yourself. You can use the following command:
-
-```
-curl \
---data '{"identifier": {"type": "m.id.user", "user": "YOUR_MATRIX_USERNAME" }, "password": "YOUR_MATRIX_PASSWORD", "type": "m.login.password", "device_id": "Appservice-Kakaotalk", "initial_device_display_name": "Appservice-Kakaotalk"}' \
-https://matrix.DOMAIN/_matrix/client/r0/login
-```
+- retrieve a Matrix access token for yourself. Refer to the documentation on [how to do that](obtaining-access-tokens.md).
 
 - send the access token to the bot. Example: `login-matrix MATRIX_ACCESS_TOKEN_HERE`
 
