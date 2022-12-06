@@ -103,7 +103,7 @@
   with_items:
     - "{{ matrix_mautrix_googlechat_config_path }}/config.yaml"
     - "{{ matrix_mautrix_googlechat_config_path }}/registration.yaml"
-    - "{{ matrix_systemd_path }}/matrix-mautrix-googlechat.service"
+    - "{{ devture_systemd_docker_base_systemd_path }}/matrix-mautrix-googlechat.service"
 
 - name: Ensure mautrix-googlechat config.yaml installed
   ansible.builtin.copy:

@@ -16,6 +16,12 @@
     name: "{{ matrix_docker_network }}"
     driver: bridge
 
+# ref: https://github.com/ansible/ansible/issues/56243#issuecomment-562657109
+- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_bin_path }}/remove-all"
+    state: touch
+
 - name: Ensure remove-all script created
   ansible.builtin.template:
     src: "{{ role_path }}/templates/bin/remove-all.j2"

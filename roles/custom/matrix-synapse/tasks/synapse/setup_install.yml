@@ -128,6 +128,12 @@
     dest: "{{ devture_systemd_docker_base_systemd_path }}/matrix-synapse.service"
     mode: 0644
 
+# ref: https://github.com/ansible/ansible/issues/56243#issuecomment-562657109
+- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_synapse_bin_path }}/register-user"
+    state: touch
+
 - name: Ensure register-user script created
   ansible.builtin.template:
     src: "{{ role_path }}/templates/synapse/bin/register-user.j2"
