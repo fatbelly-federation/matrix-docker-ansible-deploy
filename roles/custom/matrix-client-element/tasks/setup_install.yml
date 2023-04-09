@@ -76,6 +76,19 @@
     owner: "{{ matrix_user_username }}"
     group: "{{ matrix_user_groupname }}"
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+  file:
+    path: "{{ matrix_client_element_data_path }}/{{ item.name }}"
+    state: touch
+  with_items:
+    - {src: "{{ role_path }}/templates/nginx.conf.j2", name: "nginx.conf"}
+    - {src: "{{ role_path }}/templates/labels.j2", name: "labels"}
+    - {src: "{{ matrix_client_element_page_template_welcome_path }}", name: "welcome.html"}
+    - {src: "{{ matrix_client_element_embedded_pages_home_path }}", name: "home.html"}
+  when: "item.src is not none"
+
 - name: Ensure Element config files installed
   ansible.builtin.template:
     src: "{{ item.src }}"

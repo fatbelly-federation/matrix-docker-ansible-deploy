@@ -22,6 +22,16 @@
     - "{{ matrix_nginx_proxy_data_path }}"
     - "{{ matrix_nginx_proxy_confd_path }}"
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+  file:
+    path: "{{ matrix_nginx_proxy_base_path }}/labels"
+    state: touch
+    owner: "{{ matrix_user_username }}"
+    group: "{{ matrix_user_groupname }}"
+    mode: 0640
+
 - name: Ensure Matrix nginx-proxy labels file is created
   ansible.builtin.template:
     src: "{{ role_path }}/templates/labels.j2"

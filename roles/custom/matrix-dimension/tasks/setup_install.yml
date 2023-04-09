@@ -85,6 +85,16 @@
     owner: "{{ matrix_user_username }}"
     group: "{{ matrix_dimension_user_gid }}"
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+  file:
+    path: "{{ matrix_dimension_base_path }}/labels"
+    state: touch
+    mode: 0640
+    owner: "{{ matrix_user_username }}"
+    group: "{{ matrix_user_groupname }}"
+
 - name: Ensure Dimension labels installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/labels.j2"
