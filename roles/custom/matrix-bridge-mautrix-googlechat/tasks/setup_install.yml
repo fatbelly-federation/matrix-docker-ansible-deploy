@@ -99,10 +99,11 @@
 
 # touch the config to work-around a bug
 # ref: https://github.com/ansible/ansible/issues/56243
-- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
-  file:
+- name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtinfile:
     path: "{{ item }}"
     state: touch
+    mode: 0644
   with_items:
     - "{{ matrix_mautrix_googlechat_config_path }}/config.yaml"
     - "{{ matrix_mautrix_googlechat_config_path }}/registration.yaml"

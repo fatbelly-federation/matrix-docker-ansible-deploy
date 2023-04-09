@@ -12,10 +12,11 @@
     - "{{ matrix_synapse_reverse_proxy_companion_confd_path }}"
 
 # ref: https://github.com/ansible/ansible/issues/56243#issuecomment-562657109
-- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+- name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
   ansible.builtin.file:
     path: "{{ item }}"
     state: touch
+    mode: 0644
   with_items:
     - "{{ matrix_synapse_reverse_proxy_companion_base_path }}/nginx.conf"
     - "{{ matrix_synapse_reverse_proxy_companion_confd_path }}/nginx-http.conf"

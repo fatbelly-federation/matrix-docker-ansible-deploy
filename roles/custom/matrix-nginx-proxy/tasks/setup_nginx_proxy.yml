@@ -24,8 +24,8 @@
 
 # touch the config to work-around a bug
 # ref: https://github.com/ansible/ansible/issues/56243
-- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
-  file:
+- name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
     path: "{{ matrix_nginx_proxy_base_path }}/labels"
     state: touch
     owner: "{{ matrix_user_username }}"

@@ -78,10 +78,13 @@
 
 # touch the config to work-around a bug
 # ref: https://github.com/ansible/ansible/issues/56243
-- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
-  file:
+- name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
     path: "{{ matrix_client_element_data_path }}/{{ item.name }}"
     state: touch
+    mode: 0644
+    owner: "{{ matrix_user_username }}"
+    group: "{{ matrix_user_groupname }}"
   with_items:
     - {src: "{{ role_path }}/templates/nginx.conf.j2", name: "nginx.conf"}
     - {src: "{{ role_path }}/templates/labels.j2", name: "labels"}

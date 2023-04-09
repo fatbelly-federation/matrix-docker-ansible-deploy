@@ -22,10 +22,11 @@
         loop_var: domain_name
 
     # ref: https://github.com/ansible/ansible/issues/56243#issuecomment-562657109
-    - name: ensure file already exists at template dest to work around 'invalid selinux context' issue
+    - name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
       ansible.builtin.file:
         path: "{{ matrix_ssl_bin_dir_path }}/lets-encrypt-certificates-renew"
         state: touch
+        mode: 0755
 
     - name: Ensure Let's Encrypt SSL renewal script installed
       ansible.builtin.template:

@@ -12,10 +12,11 @@
 
 # touch the config to work-around a bug
 # ref: https://github.com/ansible/ansible/issues/56243
-- name: ensure file already exists at template dest to work around 'invalid selinux context' issue
-  file:
+- name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
     path: "{{ item }}"
     state: touch
+    mode: 0640
   with_items:
     - "{{ matrix_synapse_ext_path }}/shared_secret_authenticator.py"
 
