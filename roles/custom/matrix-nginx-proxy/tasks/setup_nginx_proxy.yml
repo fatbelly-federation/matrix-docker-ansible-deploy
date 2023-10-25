@@ -97,12 +97,30 @@
     state: absent
   when: "not matrix_nginx_proxy_proxy_conduit_enabled | bool"
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-client-element.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-client-element.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_element_enabled | bool
+
 - name: Ensure Matrix nginx-proxy configuration for Element domain exists
   ansible.builtin.template:
     src: "{{ role_path }}/templates/nginx/conf.d/matrix-client-element.conf.j2"
     dest: "{{ matrix_nginx_proxy_confd_path }}/matrix-client-element.conf"
     mode: 0644
   when: matrix_nginx_proxy_proxy_element_enabled | bool
+
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-riot-web.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-riot-web.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_riot_compat_redirect_enabled | bool
 
 - name: Ensure Matrix nginx-proxy configuration for riot domain exists
   ansible.builtin.template:
@@ -111,12 +129,30 @@
     mode: 0644
   when: matrix_nginx_proxy_proxy_riot_compat_redirect_enabled | bool
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-client-hydrogen.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-client-hydrogen.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_hydrogen_enabled | bool
+
 - name: Ensure Matrix nginx-proxy configuration for Hydrogen domain exists
   ansible.builtin.template:
     src: "{{ role_path }}/templates/nginx/conf.d/matrix-client-hydrogen.conf.j2"
     dest: "{{ matrix_nginx_proxy_confd_path }}/matrix-client-hydrogen.conf"
     mode: 0644
   when: matrix_nginx_proxy_proxy_hydrogen_enabled | bool
+
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-client-cinny.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-client-cinny.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_cinny_enabled | bool
 
 - name: Ensure Matrix nginx-proxy configuration for Cinny domain exists
   ansible.builtin.template:
@@ -125,6 +161,15 @@
     mode: 0644
   when: matrix_nginx_proxy_proxy_cinny_enabled | bool
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-bot-buscarron.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-bot-buscarron.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_buscarron_enabled | bool
+
 - name: Ensure Matrix nginx-proxy configuration for buscarron domain exists
   ansible.builtin.template:
     src: "{{ role_path }}/templates/nginx/conf.d/matrix-bot-buscarron.conf.j2"
@@ -132,12 +177,30 @@
     mode: 0644
   when: matrix_nginx_proxy_proxy_buscarron_enabled | bool
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-dimension.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-dimension.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_dimension_enabled | bool
+
 - name: Ensure Matrix nginx-proxy configuration for dimension domain exists
   ansible.builtin.template:
     src: "{{ role_path }}/templates/nginx/conf.d/matrix-dimension.conf.j2"
     dest: "{{ matrix_nginx_proxy_confd_path }}/matrix-dimension.conf"
     mode: 0644
   when: matrix_nginx_proxy_proxy_dimension_enabled | bool
+
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-rageshake.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-rageshake.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_proxy_rageshake_enabled | bool
 
 - name: Ensure Matrix nginx-proxy configuration for rageshake domain exists
   ansible.builtin.template:
@@ -188,6 +251,14 @@
     mode: 0644
   when: matrix_nginx_proxy_proxy_ntfy_enabled | bool
 
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-domain.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-domain.conf"
+    state: touch
+    mode: 0644
+
 - name: Ensure Matrix nginx-proxy configuration for Matrix domain exists
   ansible.builtin.template:
     src: "{{ role_path }}/templates/nginx/conf.d/matrix-domain.conf.j2"
@@ -211,6 +282,15 @@
     owner: "{{ matrix_user_username }}"
     group: "{{ matrix_user_groupname }}"
   when: matrix_nginx_proxy_base_domain_serving_enabled | bool and matrix_nginx_proxy_base_domain_homepage_enabled | bool and matrix_nginx_proxy_base_domain_create_directory | bool
+
+# touch the config to work-around a bug
+# ref: https://github.com/ansible/ansible/issues/56243
+- name: Ensure matrix-base-domain.conf already exists at template dest to work around 'invalid selinux context' issue
+  ansible.builtin.file:
+    path: "{{ matrix_nginx_proxy_confd_path }}/matrix-base-domain.conf"
+    state: touch
+    mode: 0644
+  when: matrix_nginx_proxy_base_domain_serving_enabled | bool
 
 - name: Ensure Matrix nginx-proxy configuration for base domain exists
   ansible.builtin.template:

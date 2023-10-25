@@ -100,7 +100,7 @@
 # touch the config to work-around a bug
 # ref: https://github.com/ansible/ansible/issues/56243
 - name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
-  ansible.builtinfile:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: touch
     mode: 0644
