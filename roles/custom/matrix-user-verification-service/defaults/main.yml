@@ -6,7 +6,8 @@ matrix_user_verification_service_ansible_name: "Matrix User Verification Service
 matrix_user_verification_service_enabled: true
 
 # Fix version tag
-matrix_user_verification_service_version: "v2.0.0"
+# renovate: datasource=docker depName=matrixdotorg/matrix-user-verification-service
+matrix_user_verification_service_version: "v3.0.0"
 
 # Paths
 matrix_user_verification_service_base_path: "{{ matrix_base_data_path }}/user-verification-service"
@@ -17,6 +18,14 @@ matrix_user_verification_service_config_env_file: "{{ matrix_user_verification_s
 matrix_user_verification_service_docker_image_name_prefix: "{{ matrix_container_global_registry_prefix }}"
 matrix_user_verification_service_docker_image: "{{ matrix_user_verification_service_docker_image_name_prefix }}matrixdotorg/matrix-user-verification-service:{{ matrix_user_verification_service_version }}"
 matrix_user_verification_service_docker_image_force_pull: "{{ matrix_user_verification_service_docker_image.endswith(':latest') }}"
+
+# The base container network. It will be auto-created by this role if it doesn't exist already.
+matrix_user_verification_service_container_network: "{{ matrix_docker_network }}"
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+matrix_user_verification_service_container_additional_networks: []
 
 matrix_user_verification_service_container_name: "matrix-user-verification-service"
 # This will be set in group vars

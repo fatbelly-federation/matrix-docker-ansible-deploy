@@ -141,6 +141,10 @@ allow_public_rooms_over_federation: {{ matrix_synapse_allow_public_rooms_over_fe
 #
 default_room_version: {{ matrix_synapse_default_room_version|to_json }}
 
+# Set to true to automatically forget rooms for users when they leave them, either
+# normally or via a kick or ban. Defaults to false.
+forget_rooms_on_leave: {{ matrix_synapse_forget_rooms_on_leave | to_json }}
+
 # The GC threshold parameters to pass to `gc.set_threshold`, if defined
 #
 #gc_thresholds: [700, 10, 10]
@@ -505,7 +509,12 @@ limit_remote_rooms:
 #
 #redaction_retention_period: 28d
 
-redaction_retention_period: {{ matrix_synapse_redaction_retention_period }}
+redaction_retention_period: {{ matrix_synapse_redaction_retention_period | to_json }}
+
+# How long to keep locally forgotten rooms before purging them from the DB.
+#
+#forgotten_room_retention_period: 28d
+forgotten_room_retention_period: {{ matrix_synapse_forgotten_room_retention_period | to_json }}
 
 # How long to track users' last seen time and IPs in the database.
 #
@@ -513,7 +522,7 @@ redaction_retention_period: {{ matrix_synapse_redaction_retention_period }}
 #
 #user_ips_max_age: 14d
 
-user_ips_max_age: {{ matrix_synapse_user_ips_max_age }}
+user_ips_max_age: {{ matrix_synapse_user_ips_max_age | to_json }}
 
 # Inhibits the /requestToken endpoints from returning an error that might leak
 # information about whether an e-mail address is in use or not on this
@@ -2081,9 +2090,9 @@ saml2_config:
 # use 'oidc' for the idp_id to ensure that existing users continue to be
 # recognised.)
 #
-oidc_providers:
+{% if matrix_synapse_oidc_enabled and matrix_synapse_oidc_providers | length > 0 %}
   # Generic example
-  #
+  #matrix_synapse_oidc_providers:
   #- idp_id: my_idp
   #  idp_name: "My OpenID provider"
   #  idp_icon: "mxc://example.com/mediaid"
@@ -2107,6 +2116,8 @@ oidc_providers:
   #  attribute_requirements:
   #    - attribute: userGroup
   #      value: "synapseUsers"
+oidc_providers: {{ matrix_synapse_oidc_providers }}
+{% endif %}
 
 
 # Enable Central Authentication Service (CAS) for registration and login.
@@ -2347,7 +2358,7 @@ email:
   # must present a certificate that is valid for 'smtp_host'. If this option
   # is set to false, TLS will not be used.
   #
-  #enable_tls: false
+  enable_tls: {{ matrix_synapse_email_smtp_enable_tls|to_json }}
 
   # notif_from defines the "From" address to use when sending emails.
   # It must be set if email sending is enabled.
@@ -2566,20 +2577,6 @@ push:
   #group_unread_count_by_room: false
 
 
-# Spam checkers are third-party modules that can block specific actions
-# of local users, such as creating rooms and registering undesirable
-# usernames, as well as remote users by redacting incoming events.
-#
-# spam_checker:
-   #- module: "my_custom_project.SuperSpamChecker"
-   #  config:
-   #    example_option: 'things'
-   #- module: "some_other_project.BadEventStopper"
-   #  config:
-   #    example_stop_events_from: ['@bad:example.com']
-spam_checker: {{ matrix_synapse_spam_checker|to_json }}
-
-
 ## Rooms ##
 
 # Controls whether locally-created rooms should be end-to-end encrypted by
@@ -2626,7 +2623,7 @@ user_directory:
     # Uncomment to return search results containing all known users, even if that
     # user does not share a room with the requester.
     #
-    #search_all_users: true
+    search_all_users: {{ matrix_synapse_user_directory_search_all_users | to_json }}
 
     # Defines whether to prefer local users in search query results.
     # If True, local users are more likely to appear above remote users
@@ -2635,7 +2632,7 @@ user_directory:
     # Uncomment to prefer local over remote users in user directory search
     # results.
     #
-    #prefer_local_users: true
+    prefer_local_users: {{ matrix_synapse_user_directory_prefer_local_users | to_json }}
 
 
 # User Consent configuration

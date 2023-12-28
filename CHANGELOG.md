@@ -1,3 +1,108 @@
+# 2023-10-23
+
+## Enabling `allow_public_rooms_over_federation` by default for Synapse
+
+**TDLR**: if your Matrix server is federating (which it mostly likely is, unless you've [disabled federation](docs/configuring-playbook-federation.md#disabling-federation)), your public rooms will not only be joinable across federation (as they've always been), but from now on will be discoverable (made available as a list across federation). We're changing this by flipping the value for Synapse's `allow_public_rooms_over_federation` setting to `true`, going against the upstream default. Servers that disable federation are not affected. Servers that have public rooms which are not published to the room directory are also not affected.
+
+We generally try to stick to the default configuration for Synapse (and all other components), unless these defaults seem wrong or harmful. One such previous case from a few months ago was us [Enabling `forget_rooms_on_leave` by default for Synapse](#enabling-forget_rooms_on_leave-by-default-for-synapse) - the default value was making Synapse more wasteful of resources by default.
+
+Today, we're going against upstream defaults again and flipping the `allow_public_rooms_over_federation` configuration option to `true`.
+This way, public rooms on your server will be made discoverable by others via federation, using the [`GET /_matrix/federation/v1/publicRooms` of the Server-Server API](https://spec.matrix.org/v1.8/server-server-api/#get_matrixfederationv1publicrooms).
+
+The upstream Synapse default is `false` (disabled), so that public rooms are not exposed for other servers to discover (learn about their existence). Nevertheless, even if these rooms are not exposed (listed) for discovery, they are **still joinable** by anyone who knows their address or is invited to the room by an existing member.
+
+**We go against the upstream default** in an effort to make Matrix federation more useful - a public room should be globally public - not only joinable, but also discoverable across federation.
+
+The **historical reasoning** behind this change is as follows:
+
+- `allow_public_rooms_over_federation` seems to have been enabled by default for Synapse until v1.7.0 (~2019), just like we believe it should be for a globally-federating network - rooms should be joinable and discoverable across federation.
+
+- In Synapse v1.7.0 (~2019), `allow_public_rooms_over_federation` [got disabled](https://github.com/matrix-org/synapse/blob/e9069c9f919685606506f04527332e83fbfa44d9/docs/upgrade.md?plain=1#L1877-L1891) by default in a [security-by-obscurity](https://en.wikipedia.org/wiki/Security_through_obscurity) workaround for misconfigured servers. See the [Avoiding unwelcome visitors on private Matrix servers](https://matrix.org/blog/2019/11/09/avoiding-unwelcome-visitors-on-private-matrix-servers/) `matrix.org` blog article. We believe that people wishing for a truly private server, should [disable federation](docs/configuring-playbook-federation.md#disabling-federation), instead of having a fully-federating server and trying to hide its public rooms. We also provide other workarounds below. We (and the Synapse team, obviously) believe that Matrix should federate by default, so federating the public room list seems to make sense.
+
+- [etke.cc](https://etke.cc/) has been developing the free-software [Matrix Rooms Search](https://gitlab.com/etke.cc/mrs) project for a while now. One public (demo) instance of it is hosted at [matrixrooms.info](https://matrixrooms.info/). This search engine tries to go through the Matrix federation and discover & index public rooms to allow people to find them. We believe it's vital for Matrix (and any chat or social network for that matter) to be more discoverable, so that people can find communities and others to talk to. Today (on 23rd of October 2023), `matrixrooms.info` is indexing `23066` Matrix servers. Of these, only `1567` servers (7%) are making their public rooms discoverable. Who knows what wonderful communities and rooms are available on these 93% other Matrix servers that are supposedly federating, but are still gate-keeping their public room list. Indubitably, many of these servers are hosted via matrix-docker-ansible-deploy, so we feel partially responsible for making Matrix federation less useful.
+
+Here are **actions you may wish to take** as a result of this change:
+
+- (recommended) embrace the new default. If your Matrix server is federating, your public rooms have always been joinable across federation anyway. Exposing the list of public rooms does no harm and more-so does good by contributing to the usefulness of the Matrix network by facilitating room discovery.
+
+- (switch to a better way of doings things on your semi-private server) The problem that the Synapse team appears to have solved by flipping the `allow_public_rooms_over_federation` default in Synapse v1.7.0 seems to for "mostly private" servers, which federate and have a bunch of rooms made public (and published in their room directory) in an effort to allow people on the same homeserver to easily find and join them (self-onboarding). With the introduction of Matrix Spaces, you can reorganize your flow around spaces - you can auto-join your users to a Matrix Space (via Synapse's `auto_join_rooms` setting - controlled by our `matrix_synapse_auto_join_rooms` variable), then add a bunch of rooms to the space and make them joinable by people belonging to the space. That is to say, do not make rooms public and do not publish them to the room directory unless they are really public. Instead, use other mechanisms for semi-public rooms or private rooms. One alternative is to stick to what you're doing (public rooms published to your rooms directory) but having a `m.federate: true` flag set during creation (clients like Element have a nice UI checkbox for this) to explicitly disable federation for them.
+
+- (keeping the old behavior) if you wish to keep doing what you're doing (keeping your Matrix server federating, but hiding its public rooms list), add `matrix_synapse_allow_public_rooms_over_federation: false` to your `vars.yml` configuration. This restores the old behavior. You may also consider [disabling federation](docs/configuring-playbook-federation.md#disabling-federation) completely instead of relying on security-by-obscurity measures.
+
+
+# 2023-10-18
+
+## Postgres parameters are automatically tuned now
+
+The playbook has provided some hints about [Tuning PostgreSQL](docs/maintenance-postgres.md#tuning-postgresql) for quite a while now.
+
+From now on, the [Postgres Ansible role](https://github.com/devture/com.devture.ansible.role.postgres) automatically tunes your Postgres configuration with the same [calculation logic](https://github.com/le0pard/pgtune/blob/master/src/features/configuration/configurationSlice.js) that powers https://pgtune.leopard.in.ua/.
+
+Our [Tuning PostgreSQL](docs/maintenance-postgres.md#tuning-postgresql) documentation page has details about how you can turn auto-tuning off or adjust the automatically-determined Postgres configuration parameters manually.
+
+People who [enable load-balancing with Synapse workers](docs/configuring-playbook-synapse.md#load-balancing-with-workers) no longer need to increase the maximum number of Postgres connections manually (previously done via `devture_postgres_process_extra_arguments`). There's a new variable (`devture_postgres_max_connections`) for controlling this number and the playbook automatically raises its value from `200` to `500` for setups which enable workers.
+
+
+# 2023-08-31
+
+## SchildiChat support
+
+Thanks to [Aine](https://gitlab.com/etke.cc) of [etke.cc](https://etke.cc/), the playbook can now set up the [SchildiChat](https://github.com/SchildiChat/schildichat-desktop) client.
+
+See our [Configuring SchildiChat](docs/configuring-playbook-client-schildichat.md) documentation to get started.
+
+
+# 2023-08-23
+
+## mautrix-wsproxy support
+
+Thanks to [Johan Swetzén](https://github.com/jswetzen)'s efforts (who finished what was started by [James Reilly](https://github.com/hanthor) and [Shreyas Ajjarapu](https://github.com/shreyasajj)), the playbook now supports bridging to Android SMS and Apple iMessage via the [mautrix-wsproxy](https://github.com/mautrix/wsproxy) service (in combination with a [mautrix-imessage](https://github.com/mautrix/imessage) bridge running on your Mac or Android phone).
+
+See our [Setting up Mautrix wsproxy for bridging Android SMS or Apple iMessage](docs/configuring-playbook-bridge-mautrix-wsproxy.md) documentation page for getting started.
+
+
+# 2023-07-24
+
+## matrix-registration-bot usage changed
+
+[matrix-registration-bot](docs/configuring-playbook-bot-matrix-registration-bot.md) got some updates and now supports password-only-based login. Therefore the bot now doesn't need any manual configuration except setting a password in your `vars.yml`. The bot will be registered as admin and access tokens will be obtained automatically by the bot.
+
+**For existing users** You need to set `matrix_bot_matrix_registration_bot_bot_password` if you previously only used `matrix_bot_matrix_registration_bot_bot_access_token`. Please also remove the following deprecated settings
+
+* `matrix_bot_matrix_registration_bot_bot_access_token`
+* `matrix_bot_matrix_registration_bot_api_token`
+
+
+# 2023-07-21
+
+## mautrix-gmessages support
+
+Thanks to [Shreyas Ajjarapu](https://github.com/shreyasajj)'s efforts, the playbook now supports bridging to [Google Messages](https://messages.google.com/) via the [mautrix-gmessages](https://github.com/mautrix/gmessages) bridge. See our [Setting up Mautrix Google Messages bridging](docs/configuring-playbook-bridge-mautrix-gmessages.md) documentation page for getting started.
+
+
+# 2023-07-17
+
+## matrix-media-repo support
+
+Thanks to [Michael Hollister](https://github.com/Michael-Hollister) from [FUTO](https://www.futo.org/), the creators of the [Circles app](https://circu.li/), the playbook can now set up [matrix-media-repo](https://github.com/turt2live/matrix-media-repo) - an alternative way to store homeserver media files, powered by a homeserver-independent implementation which supports S3 storage, IPFS, deduplication and other advanced features.
+
+To learn more see our [Storing Matrix media files using matrix-media-repo](docs/configuring-playbook-matrix-media-repo.md) documentation page.
+
+
+# 2023-05-25
+
+## Enabling `forget_rooms_on_leave` by default for Synapse
+
+With the [Synapse v1.84.0 update](https://github.com/spantaleev/matrix-docker-ansible-deploy/pull/2698), we've also **changed the default value** of the `forget_rooms_on_leave` setting of Synapse to a value of `true`.
+This way, **when you leave a room, Synapse will now forget it automatically**.
+
+The upstream Synapse default is `false` (disabled), so that you must forget rooms manually after leaving.
+
+**We go against the upstream default** ([somewhat controversially](https://github.com/spantaleev/matrix-docker-ansible-deploy/pull/2700)) in an effort to make Synapse leaner and potentially do what we believe most users would expect their homeserver to be doing.
+
+If you'd like to go back to the old behavior, add the following to your configuration: `matrix_synapse_forget_rooms_on_leave: false`
+
+
 # 2023-04-03
 
 ## The matrix-jitsi role lives independently now
@@ -345,7 +450,7 @@ Additional details are available in the [Authenticate using Matrix OpenID (Auth-
 
 ## Draupnir moderation tool (bot) support
 
-Thanks to [FSG-Cat](https://github.com/FSG-Cat), the playbook can now install and configure the [Draupnir](https://github.com/Gnuxie/Draupnir) moderation tool (bot). Draupnir is a fork of [Mjolnir](docs/configuring-playbook-bot-mjolnir.md) (which the playbook has supported for a long time) maintained by Mjolnir's former lead developer.
+Thanks to [FSG-Cat](https://github.com/FSG-Cat), the playbook can now install and configure the [Draupnir](https://github.com/the-draupnir-project/Draupnir) moderation tool (bot). Draupnir is a fork of [Mjolnir](docs/configuring-playbook-bot-mjolnir.md) (which the playbook has supported for a long time) maintained by Mjolnir's former lead developer.
 
 Additional details are available in [Setting up Draupnir](docs/configuring-playbook-bot-draupnir.md).
 

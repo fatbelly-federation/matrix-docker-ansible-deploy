@@ -30,7 +30,7 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 ### Additional useful services
 
-- [Setting up the Dimension Integration Manager](configuring-playbook-dimension.md) (optional, but recommended; after [installing](installing.md))
+- [Setting up the Dimension Integration Manager](configuring-playbook-dimension.md) (optional; [unmaintained](https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/2806#issuecomment-1673559299); after [installing](installing.md))
 
 - [Setting up the Jitsi video-conferencing platform](configuring-playbook-jitsi.md) (optional)
 
@@ -50,6 +50,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
   - [Configuring Dendrite](configuring-playbook-dendrite.md), if you've switched to the [Dendrite](https://matrix-org.github.io/dendrite) homeserver implementation (optional)
 
 - [Configuring Element](configuring-playbook-client-element.md) (optional)
+
+- [Storing Matrix media files using matrix-media-repo](configuring-playbook-matrix-media-repo.md) (optional)
 
 - [Storing Matrix media files on Amazon S3](configuring-playbook-s3.md) (optional)
 
@@ -79,6 +81,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 - [Setting up Hydrogen](configuring-playbook-client-hydrogen.md) - a new lightweight matrix client with legacy and mobile browser support (optional)
 
 - [Setting up Cinny](configuring-playbook-client-cinny.md) - a web client focusing primarily on simple, elegant and secure interface (optional)
+
+- [Setting up SchildiChat](configuring-playbook-client-schildichat.md) - a web client based on [Element](https://element.io/) with some extras and tweaks (optional)
 
 
 ### Authentication and user-related
@@ -112,6 +116,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Mautrix Slack bridging](configuring-playbook-bridge-mautrix-slack.md) (optional)
 
+- [Setting up Mautrix Google Messages bridging](configuring-playbook-bridge-mautrix-gmessages.md) (optional)
+
 - [Setting up Mautrix Whatsapp bridging](configuring-playbook-bridge-mautrix-whatsapp.md) (optional)
 
 - [Setting up Mautrix Facebook bridging](configuring-playbook-bridge-mautrix-facebook.md) (optional)
@@ -125,6 +131,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 - [Setting up Mautrix Twitter bridging](configuring-playbook-bridge-mautrix-twitter.md) (optional)
 
 - [Setting up Mautrix Signal bridging](configuring-playbook-bridge-mautrix-signal.md) (optional)
+
+- [Setting up Mautrix wsproxy for bridging Android SMS or Apple iMessage](configuring-playbook-bridge-mautrix-wsproxy.md) (optional)
 
 - [Setting up Appservice IRC bridging](configuring-playbook-bridge-appservice-irc.md) (optional)
 

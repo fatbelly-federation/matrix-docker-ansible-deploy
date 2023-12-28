@@ -1,7 +1,8 @@
 ---
 # Project source code URL: https://github.com/nginx/nginx
 matrix_nginx_proxy_enabled: true
-matrix_nginx_proxy_version: 1.23.3-alpine
+# renovate: datasource=docker depName=nginx
+matrix_nginx_proxy_version: 1.25.2-alpine
 
 # We use an official nginx image, which we fix-up to run unprivileged.
 # An alternative would be an `nginxinc/nginx-unprivileged` image, but
@@ -212,6 +213,10 @@ matrix_nginx_proxy_proxy_hydrogen_hostname: "{{ matrix_server_fqn_hydrogen }}"
 matrix_nginx_proxy_proxy_cinny_enabled: false
 matrix_nginx_proxy_proxy_cinny_hostname: "{{ matrix_server_fqn_cinny }}"
 
+# Controls whether proxying the schildichat domain should be done.
+matrix_nginx_proxy_proxy_schildichat_enabled: false
+matrix_nginx_proxy_proxy_schildichat_hostname: "{{ matrix_server_fqn_schildichat }}"
+
 # Controls whether proxying the buscarron domain should be done.
 matrix_nginx_proxy_proxy_buscarron_enabled: false
 matrix_nginx_proxy_proxy_buscarron_hostname: "{{ matrix_server_fqn_buscarron }}"
@@ -252,6 +257,10 @@ matrix_nginx_proxy_proxy_grafana_hostname: "{{ matrix_server_fqn_grafana }}"
 # Controls whether proxying the sygnal domain should be done.
 matrix_nginx_proxy_proxy_sygnal_enabled: false
 matrix_nginx_proxy_proxy_sygnal_hostname: "{{ matrix_server_fqn_sygnal }}"
+
+# Controls whether proxying the mautrix wsproxy should be done.
+matrix_nginx_proxy_proxy_mautrix_wsproxy_enabled: false
+matrix_nginx_proxy_proxy_mautrix_wsproxy_hostname: "{{ matrix_server_fqn_mautrix_wsproxy }}"
 
 # Controls whether proxying the ntfy domain should be done.
 matrix_nginx_proxy_proxy_ntfy_enabled: false
@@ -299,6 +308,7 @@ matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_path: "{{ matrix_nginx_proxy_
 # To avoid using this, use `matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_raw_content` instead of supplying username/password.
 # Learn more in: `roles/custom/matrix-nginx-proxy/tasks/nginx-proxy/setup_metrics_auth.yml`.
 matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_apache_container_image: "{{ matrix_container_global_registry_prefix }}httpd:{{ matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_apache_container_image_tag }}"
+# renovate: datasource=docker depName=httpd
 matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_apache_container_image_tag: "2.4.54-alpine3.16"
 matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_apache_container_force_pull: "{{ matrix_nginx_proxy_proxy_matrix_metrics_basic_auth_apache_container_image_tag.endswith(':latest') }}"
 
@@ -332,6 +342,11 @@ matrix_nginx_proxy_proxy_matrix_3pid_registration_addr_sans_container: "127.0.0.
 matrix_nginx_proxy_proxy_matrix_identity_api_enabled: false
 matrix_nginx_proxy_proxy_matrix_identity_api_addr_with_container: "matrix-ma1sd:{{ matrix_ma1sd_container_port }}"
 matrix_nginx_proxy_proxy_matrix_identity_api_addr_sans_container: "127.0.0.1:{{ matrix_ma1sd_container_port }}"
+
+# Controls whether proxying for the media repo (`/_matrix/media`) should be done (on the matrix domain)
+matrix_nginx_proxy_proxy_media_repo_enabled: false
+matrix_nginx_proxy_proxy_media_repo_addr_with_container: "matrix-media-repo:{{ matrix_media_repo_port }}"
+matrix_nginx_proxy_proxy_media_repo_addr_sans_container: "127.0.0.1:{{ matrix_media_repo_port }}"
 
 # The addresses where the Matrix Client API is.
 # Certain extensions (like matrix-corporal) may override this in order to capture all traffic.
@@ -412,6 +427,9 @@ matrix_nginx_proxy_proxy_hydrogen_additional_server_configuration_blocks: []
 # A list of strings containing additional configuration blocks to add to Cinny's server configuration (matrix-client-cinny.conf).
 matrix_nginx_proxy_proxy_cinny_additional_server_configuration_blocks: []
 
+# A list of strings containing additional configuration blocks to add to schildichat's server configuration (matrix-client-schildichat.conf).
+matrix_nginx_proxy_proxy_schildichat_additional_server_configuration_blocks: []
+
 # A list of strings containing additional configuration blocks to add to buscarron's server configuration (matrix-bot-buscarron.conf).
 matrix_nginx_proxy_proxy_buscarron_additional_server_configuration_blocks: []
 
@@ -435,6 +453,9 @@ matrix_nginx_proxy_proxy_grafana_additional_server_configuration_blocks: []
 
 # A list of strings containing additional configuration blocks to add to Sygnal's server configuration (matrix-sygnal.conf).
 matrix_nginx_proxy_proxy_sygnal_additional_server_configuration_blocks: []
+
+# A list of strings containing additional configuration blocks to add to mautrix wsproxy server configuration (matrix-mautrix-wsproxy.conf).
+matrix_nginx_proxy_proxy_mautrix_wsproxy_additional_server_configuration_blocks: []
 
 # A list of strings containing additional configuration blocks to add to ntfy's server configuration (matrix-ntfy.conf).
 matrix_nginx_proxy_proxy_ntfy_additional_server_configuration_blocks: []
@@ -689,12 +710,3 @@ matrix_nginx_proxy_proxy_matrix_nginx_status_allowed_addresses: ['{{ ansible_def
 # http://nginx.org/en/docs/ngx_core_module.html#worker_connections
 matrix_nginx_proxy_worker_processes: auto
 matrix_nginx_proxy_worker_connections: 1024
-
-# A mapping of JVB server ids to hostname/ipa addresses used to add additional jvb blocks
-# to the Jitsi's server configuration (matrix-jitsi.conf)
-# Note: avoid using the JVB server id  "jvb-1" as this is reserved for the main host.
-# Example:
-# matrix_nginx_proxy_proxy_jitsi_additional_jvbs:
-#   jvb-2: 192.168.0.1
-#   jvb-3: 192.168.0.2
-matrix_nginx_proxy_proxy_jitsi_additional_jvbs: {}
