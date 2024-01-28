@@ -4,110 +4,174 @@
 
 ## Purpose
 
-This Ansible playbook is meant to easily let you run your own [Matrix](http://matrix.org/) homeserver.
+This [Ansible](https://www.ansible.com/) playbook is meant to help you run your own [Matrix](http://matrix.org/) homeserver, along with the [various services](#supported-services) related to that.
 
-That is, it lets you join the Matrix network with your own `@<username>:<your-domain>` identifier, all hosted on your own server.
+That is, it lets you join the Matrix network using your own `@<username>:<your-domain>` identifier, all hosted on your own server (see [prerequisites](docs/prerequisites.md)).
 
-Using this playbook, you can get the following services configured on your server:
+We run all services in [Docker](https://www.docker.com/) containers (see [the container images we use](docs/container-images.md)), which lets us have a predictable and up-to-date setup, across multiple supported distros (see [prerequisites](docs/prerequisites.md)) and [architectures](docs/alternative-architectures.md) (x86/amd64 being recommended).
 
-- (optional, default) a [Synapse](https://github.com/matrix-org/synapse) homeserver - storing your data and managing your presence in the [Matrix](http://matrix.org/) network
+[Installation](docs/README.md) (upgrades) and some maintenance tasks are automated using [Ansible](https://www.ansible.com/) (see [our Ansible guide](docs/ansible.md)).
 
-- (optional) [Amazon S3](https://aws.amazon.com/s3/) storage for Synapse's content repository (`media_store`) files using [Goofys](https://github.com/kahing/goofys)
 
-- (optional, default) [PostgreSQL](https://www.postgresql.org/) database for Synapse. [Using an external PostgreSQL server](docs/configuring-playbook-external-postgres.md) is also possible.
+## Self-hosting or SaaS
 
-- (optional, default) a [coturn](https://github.com/coturn/coturn) STUN/TURN server for WebRTC audio/video calls
+This Ansible playbook tries to make self-hosting and maintaining a Matrix server fairly easy. Still, running any service smoothly requires knowledge, time and effort.
 
-- (optional, default) free [Let's Encrypt](https://letsencrypt.org/) SSL certificate, which secures the connection to the Synapse server and the Element web UI
+If you like the [FOSS](https://en.wikipedia.org/wiki/Free_and_open-source_software) spirit of this Ansible playbook, but prefer to put the responsibility on someone else, you can also [get a managed Matrix server from etke.cc](https://etke.cc?utm_source=github&utm_medium=readme&utm_campaign=mdad) - a service built on top of this Ansible playbook, which can help you run a Matrix server with ease.
 
-- (optional, default) an [Element](https://app.element.io/) ([formerly Riot](https://element.io/previously-riot)) web UI, which is configured to connect to your own Synapse server by default
+If you like learning and experimentation, but would rather reduce future maintenance effort, you can even go for a hybrid approach - self-hosting manually using this Ansible playbook at first and then transferring server maintenance to etke.cc at a later time.
 
-- (optional, default) an [ma1sd](https://github.com/ma1uta/ma1sd) Matrix Identity server
 
-- (optional, default) an [Exim](https://www.exim.org/) mail server, through which all Matrix services send outgoing email (can be configured to relay through another SMTP server)
+## Supported services
 
-- (optional, default) an [nginx](http://nginx.org/) web server, listening on ports 80 and 443 - standing in front of all the other services. Using your own webserver [is possible](docs/configuring-playbook-own-webserver.md)
+Using this playbook, you can get the following list of services configured on your server. Basically, this playbook aims to get you up-and-running with all the necessities around Matrix, without you having to do anything else.
 
-- (optional, advanced) the [matrix-synapse-rest-auth](https://github.com/ma1uta/matrix-synapse-rest-password-provider) REST authentication password provider module
-
-- (optional, advanced) the [matrix-synapse-shared-secret-auth](https://github.com/devture/matrix-synapse-shared-secret-auth) password provider module
-
-- (optional, advanced) the [matrix-synapse-ldap3](https://github.com/matrix-org/matrix-synapse-ldap3) LDAP Auth password provider module
-
-- (optional, advanced) the [synapse-simple-antispam](https://github.com/t2bot/synapse-simple-antispam) spam checker module
-
-- (optional, advanced) the [Matrix Corporal](https://github.com/devture/matrix-corporal) reconciliator and gateway for a managed Matrix server
-
-- (optional) the [mautrix-telegram](https://github.com/tulir/mautrix-telegram) bridge for bridging your Matrix server to [Telegram](https://telegram.org/)
-
-- (optional) the [mautrix-whatsapp](https://github.com/tulir/mautrix-whatsapp) bridge for bridging your Matrix server to [Whatsapp](https://www.whatsapp.com/)
-
-- (optional) the [mautrix-facebook](https://github.com/tulir/mautrix-facebook) bridge for bridging your Matrix server to [Facebook](https://facebook.com/)
-
-- (optional) the [mautrix-hangouts](https://github.com/tulir/mautrix-hangouts) bridge for bridging your Matrix server to [Google Hangouts](https://en.wikipedia.org/wiki/Google_Hangouts)
-
-- (optional) the [matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc) bridge for bridging your Matrix server to [IRC](https://wikipedia.org/wiki/Internet_Relay_Chat)
-
-- (optional) the [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord) bridge for bridging your Matrix server to [Discord](https://discordapp.com/)
-
-- (optional) the [matrix-appservice-slack](https://github.com/matrix-org/matrix-appservice-slack) bridge for bridging your Matrix server to [Slack](https://slack.com/)
-
-- (optional) the [matrix-appservice-webhooks](https://github.com/turt2live/matrix-appservice-webhooks) bridge for slack compatible webhooks ([ConcourseCI](https://concourse-ci.org/), [Slack](https://slack.com/) etc. pp.)
-
-- (optional) the [mx-puppet-instagram](https://github.com/Sorunome/mx-puppet-instagram) bridge for Instagram-DMs ([Instagram](https://www.instagram.com/)) - see [docs/configuring-playbook-bridge-mx-puppet-instagram.md](docs/configuring-playbook-bridge-mx-puppet-instagram.md) for setup documentation
-
-- (optional) the [mx-puppet-twitter](https://github.com/Sorunome/mx-puppet-twitter) bridge for Twitter-DMs ([Twitter](https://twitter.com/) - see [docs/configuring-playbook-bridge-mx-puppet-twitter.md](docs/configuring-playbook-bridge-mx-puppet-twitter.md) for setup documentation
-
-- (optional) the [mx-puppet-discord](https://github.com/matrix-discord/mx-puppet-discord) bridge for [Discord](https://discordapp.com/)) - see [docs/configuring-playbook-bridge-mx-puppet-discord.md](docs/configuring-playbook-bridge-mx-puppet-discord.md) for setup documentation
-
-- (optional) the [mx-puppet-steam](https://github.com/icewind1991/mx-puppet-steam) bridge for [Steam](https://steamapp.com/)) - see [docs/configuring-playbook-bridge-mx-puppet-steam.md](docs/configuring-playbook-bridge-mx-puppet-steam.md) for setup documentation
-
-- (optional) the [matrix-sms-bridge](https://github.com/benkuly/matrix-sms-bridge) for bridging your Matrix server to SMS - see [docs/configuring-playbook-bridge-matrix-bridge-sms.md](docs/configuring-playbook-bridge-matrix-bridge-sms.md) for setup documentation
-
-- (optional) [Email2Matrix](https://github.com/devture/email2matrix) for relaying email messages to Matrix rooms - see [docs/configuring-playbook-email2matrix.md](docs/configuring-playbook-email2matrix.md) for setup documentation
-
-- (optional) [Dimension](https://github.com/turt2live/matrix-dimension), an open source integrations manager for matrix clients - see [docs/configuring-playbook-dimension.md](docs/configuring-playbook-dimension.md) for setup documentation
-
-- (optional) [Jitsi](https://jitsi.org/), an open source video-conferencing platform - see [docs/configuring-playbook-jitsi.md](docs/configuring-playbook-jitsi.md) for setup documentation
-
-- (optional) [matrix-reminder-bot](https://github.com/anoadragon453/matrix-reminder-bot) for scheduling one-off & recurring reminders and alarms - see [docs/configuring-playbook-bot-matrix-reminder-bot.md](docs/configuring-playbook-bot-matrix-reminder-bot.md) for setup documentation
-
-- (optional) [synapse-admin](https://github.com/Awesome-Technologies/synapse-admin), a web UI tool for administrating users and rooms on your Matrix server - see [docs/configuring-playbook-synapse-admin.md](docs/configuring-playbook-synapse-admin.md) for setup documentation
-
-- (optional) [matrix-registration](https://github.com/ZerataX/matrix-registration), a simple python application to have a token based matrix registration - see [docs/configuring-playbook-matrix-registration.md](docs/configuring-playbook-matrix-registration.md) for setup documentation
-
-Basically, this playbook aims to get you up-and-running with all the basic necessities around Matrix, without you having to do anything else.
-
-**Note**: the list above is exhaustive. It includes optional or even some advanced components that you will most likely not need.
+**Note**: the list below is exhaustive. It includes optional or even some advanced components that you will most likely not need.
 Sticking with the defaults (which install a subset of the above components) is the best choice, especially for a new installation.
 You can always re-run the playbook later to add or remove components.
 
 
-## What's different about this Ansible playbook?
+### Homeserver
 
-This is similar to the [EMnify/matrix-synapse-auto-deploy](https://github.com/EMnify/matrix-synapse-auto-deploy) Ansible deployment, but:
+The homeserver is the backbone of your matrix system. Choose one from the following list.
 
-- this one is a complete Ansible playbook (instead of just a role), so it's **easier to run** - especially for folks not familiar with Ansible
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [Synapse](https://github.com/matrix-org/synapse) | ✓ | Storing your data and managing your presence in the [Matrix](http://matrix.org/) network | [Link](docs/configuring-playbook-synapse.md) |
+| [Conduit](https://conduit.rs) | x | Storing your data and managing your presence in the [Matrix](http://matrix.org/) network. Conduit is a lightweight open-source server implementation of the Matrix Specification with a focus on easy setup and low system requirements | [Link](docs/configuring-playbook-conduit.md) |
+| [Dendrite](https://github.com/matrix-org/dendrite) | x | Storing your data and managing your presence in the [Matrix](http://matrix.org/) network. Dendrite is a second-generation Matrix homeserver written in Go, an alternative to Synapse. | [Link](docs/configuring-playbook-dendrite.md) |
 
-- this one installs and hooks together **a lot more Matrix-related services** for you (see above)
+### Clients
 
-- this one **can be executed more than once** without causing trouble
+Web clients for matrix that you can host on your own domains.
 
-- works on various distros: **CentOS** (7.0+), Debian-based distributions (**Debian** 9/Stretch+, **Ubuntu** 16.04+), **Archlinux**
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [Element](https://app.element.io/) | ✓ | Web UI, which is configured to connect to your own Synapse server by default | [Link](docs/configuring-playbook-client-element.md) |
+| [Hydrogen](https://github.com/element-hq/hydrogen-web) | x | Lightweight matrix client with legacy and mobile browser support | [Link](docs/configuring-playbook-client-hydrogen.md) |
+| [Cinny](https://github.com/ajbura/cinny) |  x | Simple, elegant and secure web client | [Link](docs/configuring-playbook-client-cinny.md) |
+| [SchildiChat](https://schildi.chat/) | x | Based on Element, with a more traditional instant messaging experience | [Link](docs/configuring-playbook-client-schildichat.md) |
 
-- this one installs everything in a single directory (`/matrix` by default) and **doesn't "contaminate" your server** with files all over the place
 
-- this one **doesn't necessarily take over** ports 80 and 443. By default, it sets up nginx for you there, but you can also [use your own webserver](docs/configuring-playbook-own-webserver.md)
 
-- this one **runs everything in Docker containers**, so it's likely more predictable and less fragile (see [Docker images used by this playbook](#docker-images-used-by-this-playbook))
+### Server Components
 
-- this one retrieves and automatically renews free [Let's Encrypt](https://letsencrypt.org/) **SSL certificates** for you
+Services that run on the server to make the various parts of your installation work.
 
-- this one optionally can store the `media_store` content repository files on [Amazon S3](https://aws.amazon.com/s3/) (but defaults to storing files on the server's filesystem)
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [PostgreSQL](https://www.postgresql.org/)| ✓ | Database for Synapse. [Using an external PostgreSQL server](docs/configuring-playbook-external-postgres.md) is also possible. | [Link](docs/configuring-playbook-external-postgres.md) |
+| [Coturn](https://github.com/coturn/coturn) | ✓ | STUN/TURN server for WebRTC audio/video calls | [Link](docs/configuring-playbook-turn.md) |
+| [Traefik](https://doc.traefik.io/traefik/) | ✓ | Web server, listening on ports 80, 443 and 8448 - standing in front of all the other services. Using your own webserver [is possible](docs/configuring-playbook-own-webserver.md) | [Link](docs/configuring-playbook-traefik.md) |
+| [nginx](http://nginx.org/) | x | (Deprecated) Web server, listening on ports 80, 443 and 8448 - standing in front of all the other services. Deprecated in favor of Traefik | [Link](docs/configuring-playbook-nginx.md) |
+| [Let's Encrypt](https://letsencrypt.org/) | ✓ | Free SSL certificate, which secures the connection to all components | [Link](docs/configuring-playbook-ssl-certificates.md) |
+| [ma1sd](https://github.com/ma1uta/ma1sd) | x | Matrix Identity Server | [Link](docs/configuring-playbook-ma1sd.md)
+| [Exim](https://www.exim.org/) | ✓ | Mail server, through which all Matrix services send outgoing email (can be configured to relay through another SMTP server) | [Link](docs/configuring-playbook-email.md) |
+| [Dimension](https://github.com/turt2live/matrix-dimension) | x | An open source integrations manager for matrix clients | [Link](docs/configuring-playbook-dimension.md) |
+| [Sygnal](https://github.com/matrix-org/sygnal) | x | Push gateway | [Link](docs/configuring-playbook-sygnal.md) |
+| [ntfy](https://ntfy.sh) | x | Push notifications server | [Link](docs/configuring-playbook-ntfy.md) |
 
-- this one optionally **allows you to use an external PostgreSQL server** for Synapse's database (but defaults to running one in a container)
 
-- helps you **import data from a previous installation** (so you can migrate your manual virtualenv/Docker setup to a more managed one)
+### Authentication
+
+Extend and modify how users are authenticated on your homeserver.
+
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [matrix-synapse-rest-auth](https://github.com/ma1uta/matrix-synapse-rest-password-provider) (advanced) | x | REST authentication password provider module | [Link](docs/configuring-playbook-rest-auth.md) |
+|[matrix-synapse-shared-secret-auth](https://github.com/devture/matrix-synapse-shared-secret-auth) (advanced) | x | Password provider module | [Link](docs/configuring-playbook-shared-secret-auth.md) |
+| [matrix-synapse-ldap3](https://github.com/matrix-org/matrix-synapse-ldap3) (advanced) | x | LDAP Auth password provider module | [Link](docs/configuring-playbook-ldap-auth.md) |
+| [matrix-ldap-registration-proxy](https://gitlab.com/activism.international/matrix_ldap_registration_proxy) (advanced) | x | A proxy that handles Matrix registration requests and forwards them to LDAP. | [Link](docs/configuring-playbook-matrix-ldap-registration-proxy.md) |
+| [matrix-registration](https://github.com/ZerataX/matrix-registration) | x | A simple python application to have a token based matrix registration | [Link](docs/configuring-playbook-matrix-registration.md) |
+
+
+### File Storage
+
+Use alternative file storage to the default `media_store` folder.
+
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [Goofys](https://github.com/kahing/goofys) | x | [Amazon S3](https://aws.amazon.com/s3/) (or other S3-compatible object store) storage for Synapse's content repository (`media_store`) files | [Link](docs/configuring-playbook-s3-goofys.md) |
+| [synapse-s3-storage-provider](https://github.com/matrix-org/synapse-s3-storage-provider) | x | [Amazon S3](https://aws.amazon.com/s3/) (or other S3-compatible object store) storage for Synapse's content repository (`media_store`) files | [Link](docs/configuring-playbook-s3.md) |
+| [matrix-media-repo](https://github.com/turt2live/matrix-media-repo) | x | matrix-media-repo is a highly customizable multi-domain media repository for Matrix. Intended for medium to large deployments, this media repo de-duplicates media while being fully compliant with the specification. | [Link](docs/configuring-playbook-matrix-media-repo.md) |
+
+### Bridges
+
+Bridges can be used to connect your matrix installation with third-party communication networks.
+
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [mautrix-discord](https://github.com/mautrix/discord) | x | Bridge to [Discord](https://discord.com/) | [Link](docs/configuring-playbook-bridge-mautrix-discord.md) |
+| [mautrix-slack](https://github.com/mautrix/slack) | x | Bridge to [Slack](https://slack.com/) | [Link](docs/configuring-playbook-bridge-mautrix-slack.md) |
+| [mautrix-telegram](https://github.com/mautrix/telegram) | x | Bridge to [Telegram](https://telegram.org/) | [Link](docs/configuring-playbook-bridge-mautrix-telegram.md) |
+| [mautrix-gmessages](https://github.com/mautrix/gmessages) | x | Bridge to [Google Messages](https://messages.google.com/) | [Link](docs/configuring-playbook-bridge-mautrix-gmessages.md) |
+| [mautrix-whatsapp](https://github.com/mautrix/whatsapp) | x | Bridge to [WhatsApp](https://www.whatsapp.com/) | [Link](docs/configuring-playbook-bridge-mautrix-whatsapp.md) |
+| [mautrix-facebook](https://github.com/mautrix/facebook) | x | Bridge to [Facebook](https://facebook.com/) | [Link](docs/configuring-playbook-bridge-mautrix-facebook.md) |
+| [mautrix-twitter](https://github.com/mautrix/twitter) | x | Bridge to [Twitter](https://twitter.com/) | [Link](docs/configuring-playbook-bridge-mautrix-twitter.md) |
+| [mautrix-hangouts](https://github.com/mautrix/hangouts) | x | Bridge to [Google Hangouts](https://en.wikipedia.org/wiki/Google_Hangouts) | [Link](docs/configuring-playbook-bridge-mautrix-hangouts.md) |
+| [mautrix-googlechat](https://github.com/mautrix/googlechat) | x | Bridge to [Google Chat](https://en.wikipedia.org/wiki/Google_Chat) | [Link](docs/configuring-playbook-bridge-mautrix-googlechat.md) |
+| [mautrix-instagram](https://github.com/mautrix/instagram) | x | Bridge to [Instagram](https://instagram.com/) | [Link](docs/configuring-playbook-bridge-mautrix-instagram.md) |
+| [mautrix-signal](https://github.com/mautrix/signal) | x | Bridge to [Signal](https://www.signal.org/) | [Link](docs/configuring-playbook-bridge-mautrix-signal.md) |
+| [beeper-linkedin](https://github.com/beeper/linkedin) | x | Bridge to [LinkedIn](https://www.linkedin.com/) | [Link](docs/configuring-playbook-bridge-beeper-linkedin.md) |
+| [matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc) | x | Bridge to [IRC](https://wikipedia.org/wiki/Internet_Relay_Chat) | [Link](docs/configuring-playbook-bridge-appservice-irc.md) |
+| [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord) | x | Bridge to [Discord](https://discordapp.com/) | [Link](docs/configuring-playbook-bridge-appservice-discord.md) |
+| [matrix-appservice-slack](https://github.com/matrix-org/matrix-appservice-slack) | x | Bridge to [Slack](https://slack.com/) | [Link](docs/configuring-playbook-bridge-appservice-slack.md) |
+| [matrix-appservice-webhooks](https://github.com/turt2live/matrix-appservice-webhooks) | x | Bridge for slack compatible webhooks ([ConcourseCI](https://concourse-ci.org/), [Slack](https://slack.com/) etc. pp.) | [Link](docs/configuring-playbook-bridge-appservice-webhooks.md) |
+| [matrix-hookshot](https://github.com/Half-Shot/matrix-hookshot) | x | Bridge for generic webhooks and multiple project management services, such as GitHub, GitLab, Figma, and Jira in particular | [Link](docs/configuring-playbook-bridge-hookshot.md) |
+| [matrix-sms-bridge](https://github.com/benkuly/matrix-sms-bridge) | x | Bridge to SMS | [Link](docs/configuring-playbook-bridge-matrix-bridge-sms.md) |
+| [Heisenbridge](https://github.com/hifi/heisenbridge) | x | Bouncer-style bridge to [IRC](https://wikipedia.org/wiki/Internet_Relay_Chat) | [Link](docs/configuring-playbook-bridge-heisenbridge.md) |
+| [go-skype-bridge](https://github.com/kelaresg/go-skype-bridge) | x | Bridge to [Skype](https://www.skype.com) | [Link](docs/configuring-playbook-bridge-go-skype-bridge.md) |
+| [mx-puppet-slack](https://hub.docker.com/r/sorunome/mx-puppet-slack) | x | Bridge to [Slack](https://slack.com) | [Link](docs/configuring-playbook-bridge-mx-puppet-slack.md) |
+| [mx-puppet-instagram](https://github.com/Sorunome/mx-puppet-instagram) | x | Bridge for Instagram-DMs ([Instagram](https://www.instagram.com/)) | [Link](docs/configuring-playbook-bridge-mx-puppet-instagram.md) |
+| [mx-puppet-twitter](https://github.com/Sorunome/mx-puppet-twitter) | x | Bridge for Twitter-DMs ([Twitter](https://twitter.com/)) | [Link](docs/configuring-playbook-bridge-mx-puppet-twitter.md) |
+| [mx-puppet-discord](https://github.com/matrix-discord/mx-puppet-discord) | x | Bridge to [Discord](https://discordapp.com/) | [Link](docs/configuring-playbook-bridge-mx-puppet-discord.md) |
+| [mx-puppet-groupme](https://gitlab.com/xangelix-pub/matrix/mx-puppet-groupme) | x | Bridge to [GroupMe](https://groupme.com/) | [Link](docs/configuring-playbook-bridge-mx-puppet-groupme.md) |
+| [mx-puppet-steam](https://github.com/icewind1991/mx-puppet-steam) | x | Bridge to [Steam](https://steamapp.com/) | [Link](docs/configuring-playbook-bridge-mx-puppet-steam.md) |
+| [Email2Matrix](https://github.com/devture/email2matrix) | x | Bridge for relaying emails to Matrix rooms | [Link](docs/configuring-playbook-email2matrix.md) |
+
+
+### Bots
+
+Bots provide various additional functionality to your installation.
+
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [matrix-reminder-bot](https://github.com/anoadragon453/matrix-reminder-bot) | x | Bot for scheduling one-off & recurring reminders and alarms | [Link](docs/configuring-playbook-bot-matrix-reminder-bot.md) |
+| [matrix-registration-bot](https://github.com/moan0s/matrix-registration-bot) | x | Bot for invitations by creating and managing registration tokens | [Link](docs/configuring-playbook-bot-matrix-registration-bot.md) |
+| [maubot](https://github.com/maubot/maubot) | x | A plugin-based Matrix bot system | [Link](docs/configuring-playbook-bot-maubot.md) |
+| [honoroit](https://gitlab.com/etke.cc/honoroit) | x | A helpdesk bot | [Link](docs/configuring-playbook-bot-honoroit.md) |
+| [Postmoogle](https://gitlab.com/etke.cc/postmoogle) | x | Email to matrix bot | [Link](docs/configuring-playbook-bot-postmoogle.md) |
+| [Go-NEB](https://github.com/matrix-org/go-neb) | x | A multi functional bot written in Go | [Link](docs/configuring-playbook-bot-go-neb.md) |
+| [Mjolnir](https://github.com/matrix-org/mjolnir) | x | A moderation tool for Matrix | [Link](docs/configuring-playbook-bot-mjolnir.md) |
+| [Draupnir](https://github.com/the-draupnir-project/Draupnir) | x | A moderation tool for Matrix (Fork of Mjolnir) | [Link](docs/configuring-playbook-bot-draupnir.md) |
+| [Buscarron](https://gitlab.com/etke.cc/buscarron) | x | Web forms (HTTP POST) to matrix | [Link](docs/configuring-playbook-bot-buscarron.md) |
+| [matrix-chatgpt-bot](https://github.com/matrixgpt/matrix-chatgpt-bot) | x | ChatGPT from matrix | [Link](docs/configuring-playbook-bot-chatgpt.md) |
+
+### Administration
+
+Services that help you in administrating and monitoring your matrix installation.
+
+
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [synapse-admin](https://github.com/Awesome-Technologies/synapse-admin) | x | A web UI tool for administrating users and rooms on your Matrix server | [Link](docs/configuring-playbook-synapse-admin.md) |
+| Metrics and Graphs | x | Consists of the [Prometheus](https://prometheus.io) time-series database server, the Prometheus [node-exporter](https://prometheus.io/docs/guides/node-exporter/) host metrics exporter, and the [Grafana](https://grafana.com/) web UI | [Link](docs/configuring-playbook-prometheus-grafana.md) |
+| [Borg](https://borgbackup.org) | x | Backups | [Link](docs/configuring-playbook-backup-borg.md) |
+| [Rageshake](https://github.com/matrix-org/rageshake) | x | Bug report server | [Link](docs/configuring-playbook-rageshake.md) |
+
+### Misc
+
+Various services that don't fit any other category.
+
+| Name | Default? | Description | Documentation |
+| ---- | -------- | ----------- | ------------- |
+| [sliding-sync](https://github.com/matrix-org/sliding-sync)| x | Sliding Sync support for clients which require it (e.g. Element X) | [Link](docs/configuring-playbook-sliding-sync-proxy.md) |
+| [synapse_auto_compressor](https://github.com/matrix-org/rust-synapse-compress-state/#automated-tool-synapse_auto_compressor) | x | A cli tool that automatically compresses `state_groups` database table in background. | [Link](docs/configuring-playbook-synapse-auto-compressor.md) |
+| [synapse-simple-antispam](https://github.com/t2bot/synapse-simple-antispam) (advanced) | x | A spam checker module | [Link](docs/configuring-playbook-synapse-simple-antispam.md) |
+| [Matrix Corporal](https://github.com/devture/matrix-corporal) (advanced) | x | Reconciliator and gateway for a managed Matrix server | [Link](docs/configuring-playbook-matrix-corporal.md) |
+| [Etherpad](https://etherpad.org) | x | An open source collaborative text editor | [Link](docs/configuring-playbook-etherpad.md) |
+| [Jitsi](https://jitsi.org/) | x | An open source video-conferencing platform | [Link](docs/configuring-playbook-jitsi.md) |
+| [Cactus Comments](https://cactus.chat) | x | A federated comment system built on matrix | [Link](docs/configuring-playbook-cactus-comments.md) |
 
 
 ## Installation
@@ -122,90 +186,17 @@ This playbook evolves over time, sometimes with backward-incompatible changes.
 When updating the playbook, refer to [the changelog](CHANGELOG.md) to catch up with what's new.
 
 
-## Docker images used by this playbook
-
-This playbook sets up your server using the following Docker images:
-
-- [matrixdotorg/synapse](https://hub.docker.com/r/matrixdotorg/synapse/) - the official [Synapse](https://github.com/matrix-org/synapse) Matrix homeserver (optional)
-
-- [instrumentisto/coturn](https://hub.docker.com/r/instrumentisto/coturn/) - the [Coturn](https://github.com/coturn/coturn) STUN/TURN server (optional)
-
-- [vectorim/element-web](https://hub.docker.com/r/vectorim/element-web/) - the [Element](https://element.io/) web client (optional)
-
-- [ma1uta/ma1sd](https://hub.docker.com/r/ma1uta/ma1sd/) - the [ma1sd](https://github.com/ma1uta/ma1sd) Matrix Identity server (optional)
-
-- [postgres](https://hub.docker.com/_/postgres/) - the [Postgres](https://www.postgresql.org/) database server (optional)
-
-- [ewoutp/goofys](https://hub.docker.com/r/ewoutp/goofys/) - the [Goofys](https://github.com/kahing/goofys) Amazon [S3](https://aws.amazon.com/s3/) file-system-mounting program (optional)
-
-- [devture/exim-relay](https://hub.docker.com/r/devture/exim-relay/) - the [Exim](https://www.exim.org/) email server (optional)
-
-- [devture/email2matrix](https://hub.docker.com/r/devture/email2matrix/) - the [Email2Matrix](https://github.com/devture/email2matrix) email server, which can relay email messages to Matrix rooms (optional)
-
-- [devture/matrix-corporal](https://hub.docker.com/r/devture/matrix-corporal/) - [Matrix Corporal](https://github.com/devture/matrix-corporal): reconciliator and gateway for a managed Matrix server (optional)
-
-- [devture/zeratax-matrix-registration](https://hub.docker.com/r/devture/zeratax-matrix-registration/) - [matrix-registration](https://github.com/ZerataX/matrix-registration): a simple python application to have a token based matrix registration (optional)
-
-- [nginx](https://hub.docker.com/_/nginx/) - the [nginx](http://nginx.org/) web server (optional)
-
-- [certbot/certbot](https://hub.docker.com/r/certbot/certbot/) - the [certbot](https://certbot.eff.org/) tool for obtaining SSL certificates from [Let's Encrypt](https://letsencrypt.org/) (optional)
-
-- [tulir/mautrix-telegram](https://hub.docker.com/r/tulir/mautrix-telegram/) - the [mautrix-telegram](https://github.com/tulir/mautrix-telegram) bridge to [Telegram](https://telegram.org/) (optional)
-
-- [tulir/mautrix-whatsapp](https://hub.docker.com/r/tulir/mautrix-whatsapp/) - the [mautrix-whatsapp](https://github.com/tulir/mautrix-whatsapp) bridge to [Whatsapp](https://www.whatsapp.com/) (optional)
-
-- [tulir/mautrix-facebook](https://hub.docker.com/r/tulir/mautrix-facebook/) - the [mautrix-facebook](https://github.com/tulir/mautrix-facebook) bridge to [Facebook](https://facebook.com/) (optional)
-
-- [tulir/mautrix-hangouts](https://hub.docker.com/r/tulir/mautrix-hangouts/) - the [mautrix-hangouts](https://github.com/tulir/mautrix-hangouts) bridge to [Google Hangouts](https://en.wikipedia.org/wiki/Google_Hangouts) (optional)
-
-- [matrixdotorg/matrix-appservice-irc](https://hub.docker.com/r/matrixdotorg/matrix-appservice-irc) - the [matrix-appservice-irc](https://github.com/matrix-org/matrix-appservice-irc) bridge to [IRC](https://wikipedia.org/wiki/Internet_Relay_Chat) (optional)
-
-- [halfshot/matrix-appservice-discord](https://hub.docker.com/r/halfshot/matrix-appservice-discord) - the [matrix-appservice-discord](https://github.com/Half-Shot/matrix-appservice-discord) bridge to [Discord](https://discordapp.com/) (optional)
-
-- [cadair/matrix-appservice-slack](https://hub.docker.com/r/cadair/matrix-appservice-slack) - the [matrix-appservice-slack](https://github.com/matrix-org/matrix-appservice-slack) bridge to [Slack](https://slack.com/) (optional)
-
-- [turt2live/matrix-appservice-webhooks](https://hub.docker.com/r/turt2live/matrix-appservice-webhooks) - the [Appservice Webhooks](https://github.com/turt2live/matrix-appservice-webhooks) bridge (optional)
-
-- [folivonet/matrix-sms-bridge](https://hub.docker.com/repository/docker/folivonet/matrix-sms-bridge) - the [matrix-sms-brdige](https://github.com/benkuly/matrix-sms-bridge) (optional)
-
-- [sorunome/mx-puppet-skype](https://hub.docker.com/r/sorunome/mx-puppet-skype) - the [mx-puppet-skype](https://github.com/Sorunome/mx-puppet-skype) bridge to [Skype](https://www.skype.com) (optional)
-
-- [sorunome/mx-puppet-slack](https://hub.docker.com/r/sorunome/mx-puppet-slack) - the [mx-puppet-slack](https://github.com/Sorunome/mx-puppet-slack) bridge to [Slack](https://slack.com) (optional)
-
-- [sorunome/mx-puppet-instagram](https://hub.docker.com/r/sorunome/mx-puppet-instagram) - the [mx-puppet-instagram](https://github.com/Sorunome/mx-puppet-instagram) bridge to [Instagram](https://www.instagram.com) (optional)
-
-- [sorunome/mx-puppet-twitter](https://hub.docker.com/r/sorunome/mx-puppet-twitter) - the [mx-puppet-twitter](https://github.com/Sorunome/mx-puppet-twitter) bridge to [Twitter](https://twitter.com) (optional)
-
-- [sorunome/mx-puppet-discord](https://hub.docker.com/r/sorunome/mx-puppet-discord) - the [mx-puppet-discord](https://github.com/matrix-discord/mx-puppet-discord) bridge to [Discord](https://discordapp.com) (optional)
-
-- [icewind1991/mx-puppet-steam](https://hub.docker.com/r/icewind1991/mx-puppet-steam) - the [mx-puppet-steam](https://github.com/icewind1991/mx-puppet-steam) bridge to [Steam](https://steampowered.com) (optional)
-
-- [turt2live/matrix-dimension](https://hub.docker.com/r/turt2live/matrix-dimension) - the [Dimension](https://dimension.t2bot.io/) integrations manager (optional)
-
-- [jitsi/web](https://hub.docker.com/r/jitsi/web) - the [Jitsi](https://jitsi.org/) web UI (optional)
-
-- [jitsi/jicofo](https://hub.docker.com/r/jitsi/jicofo) - the [Jitsi](https://jitsi.org/) Focus component (optional)
-
-- [jitsi/prosody](https://hub.docker.com/r/jitsi/prosody) - the [Jitsi](https://jitsi.org/) Prosody XMPP server component (optional)
-
-- [jitsi/jvb](https://hub.docker.com/r/jitsi/jvb) - the [Jitsi](https://jitsi.org/) Video Bridge component (optional)
-
-- [anoa/matrix-reminder-bot](https://hub.docker.com/r/anoa/matrix-reminder-bot) - the [matrix-reminder-bot](https://github.com/anoadragon453/matrix-reminder-bot) bot for one-off & recurring reminders and alarms (optional)
-
-- [awesometechnologies/synapse-admin](https://hub.docker.com/r/awesometechnologies/synapse-admin) - the [synapse-admin](https://github.com/Awesome-Technologies/synapse-admin) web UI tool for administrating users and rooms on your Matrix server (optional)
-
-
-## Deficiencies
-
-This Ansible playbook can be improved in the following ways:
-
-- setting up automatic backups to one or more storage providers
-
-
 ## Support
 
 - Matrix room: [#matrix-docker-ansible-deploy:devture.com](https://matrix.to/#/#matrix-docker-ansible-deploy:devture.com)
 
-- IRC channel: `#matrix-docker-ansible-deploy` on the [Freenode](https://freenode.net/) IRC network (irc.freenode.net)
+- IRC channel: `#matrix-docker-ansible-deploy` on the [Libera Chat](https://libera.chat/) IRC network (irc.libera.chat:6697)
 
-- Github issues: [spantaleev/matrix-docker-ansible-deploy/issues](https://github.com/spantaleev/matrix-docker-ansible-deploy/issues)
+- GitHub issues: [spantaleev/matrix-docker-ansible-deploy/issues](https://github.com/spantaleev/matrix-docker-ansible-deploy/issues)
+
+
+## Related
+
+You may also be interested in [mash-playbook](https://github.com/mother-of-all-self-hosting/mash-playbook) - another Ansible playbook for self-hosting non-Matrix services (see its [List of supported services](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/supported-services.md)).
+
+mash-playbook also makes use of [Traefik](./docs/configuring-playbook-traefik.md) as its reverse-proxy, so with minor [interoperability adjustments](https://github.com/mother-of-all-self-hosting/mash-playbook/blob/main/docs/interoperability.md), you can make matrix-docker-ansible-deploy and mash-playbook co-exist and host Matrix and non-Matrix services on the same server.

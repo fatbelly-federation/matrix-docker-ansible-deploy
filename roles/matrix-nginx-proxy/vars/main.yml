@@ -1,4 +1,0 @@
----
-
-# Tells whether this role had executed or not. Toggled to `true` during runtime.
-matrix_nginx_proxy_role_executed: false
