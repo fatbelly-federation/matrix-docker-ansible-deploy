@@ -52,10 +52,10 @@
             - {'table': 'dimension_bridges', 'column': 'isPublic', 'default': ''}
 
         - ansible.builtin.include_role:
-            name: galaxy/com.devture.ansible.role.postgres
+            name: galaxy/postgres
             tasks_from: migrate_db_to_postgres
           vars:
-            devture_postgres_db_migration_request:
+            postgres_db_migration_request:
               src: "{{ matrix_dimension_sqlite_database_path_local }}"
               dst: "{{ matrix_dimension_database_connection_string }}"
               caller: "{{ role_path | basename }}"
@@ -140,8 +140,10 @@
 
 - name: Ensure Dimension container network is created
   community.general.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ matrix_dimension_container_network }}"
     driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
 - name: Ensure matrix-dimension.service installed
   ansible.builtin.template:

@@ -14,7 +14,7 @@ For a simpler alternative (which allows you to offload your media repository sto
 
 ## Quickstart
 
-Add the following configuration to your `inventory/host_vars/matrix.DOMAIN/vars.yml` file and [re-run the installation process](./installing.md) for the playbook:
+Add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file and [re-run the installation process](./installing.md) for the playbook:
 
 ```yaml
 matrix_media_repo_enabled: true
@@ -23,9 +23,9 @@ matrix_media_repo_enabled: true
 # matrix_media_repo_metrics_enabled: true
 ```
 
-The repo is pre-configured for integrating with the Postgres database, NGINX proxy and [Prometheus/Grafana](configuring-playbook-prometheus-grafana.md) (if metrics enabled) from this playbook for all the available homeserver roles. When the media repo is enabled, other media store roles should be disabled (if using Synapse with other media store roles).
+The repo is pre-configured for integrating with the Postgres database, Traefik proxy and [Prometheus/Grafana](configuring-playbook-prometheus-grafana.md) (if metrics enabled) from this playbook for all the available homeserver roles. When the media repo is enabled, other media store roles should be disabled (if using Synapse with other media store roles).
 
-By default, the media-repo will use the local filesystem for data storage. Additional options include `s3` and `IPFS` (experimental). Access token caching is also enabled by default since the logout endpoints are proxied through the media repo.
+By default, the media-repo will use the local filesystem for data storage. You can alternatively use a `s3` cloud backend as well. Access token caching is also enabled by default since the logout endpoints are proxied through the media repo.
 
 ## Configuring the media-repo
 
@@ -89,6 +89,26 @@ matrix_media_repo_datastore_s3_opts_bucket_name: "your-media-bucket"
 
 Full list of configuration options with documentation can be found in [`roles/custom/matrix-media-repo/defaults/main.yml`](https://github.com/spantaleev/matrix-docker-ansible-deploy/blob/master/roles/custom/matrix-media-repo/defaults/main.yml)
 
+## Signing Keys
+
+Authenticated media endpoints ([MSC3916](https://github.com/matrix-org/matrix-spec-proposals/pull/3916)) requires MMR to have a configured signing key to authorize outbound federation requests. Additionally, the signing key must be merged with your homeserver's signing key file.
+
+The playbook default is to generate a MMR signing key when invoking the setup role and merge it with your homeserver if you are using Synapse or Dendrite. This can be disabled if desired by setting the option in your inventory:
+
+```yaml
+matrix_media_repo_generate_signing_key: false
+```
+
+If you wish to manually generate the signing key and merge it with your homeserver's signing key file, see https://docs.t2bot.io/matrix-media-repo/v1.3.5/installation/signing-key/ for more details.
+
+**Note that if you uninstall MMR from the playbook, it will not remove the old MMR signing key from your homeserver's signing key file. You will have to remove it manually.**
+
+### Key backup and revoking
+
+Since your homeserver signing key file is modified by the playbook, a backup will be created in `HOMESERVER_DIR/config/example.com.signing.key.backup`. If you need to remove/revoke old keys, you can restore from this backup or remove the MMR key ID from your `example.com.signing.key` file.
+
+Additionally, its recommended after revoking a signing key to update your homeserver config file (`old_signing_keys` field for Synapse and `old_private_keys` for Dendrite). See your homeserver config file for further documentation on how to populate the field.
+
 ## Importing data from an existing media store
 
 If you want to add this repo to an existing homeserver managed by the playbook, you will need to import existing media into MMR's database or you will lose access to older media while it is active. MMR versions up to `v1.3.3` only support importing from Synapse, but newer versions (at time of writing: only `latest`) also support importing from Dendrite.
@@ -103,7 +123,7 @@ To import the Synapse media store, you're supposed to invoke the `import_synapse
 
 This guide here is adapted from the [upstream documentation about the import_synapse script](https://github.com/turt2live/matrix-media-repo#importing-media-from-synapse).
 
-Run the following command on the server (after replacing `devture_postgres_connection_password` in it with the value found in your `vars.yml` file):
+Run the following command on the server (after replacing `postgres_connection_password` in it with the value found in your `vars.yml` file):
 
 ```sh
 docker exec -it matrix-media-repo \
@@ -112,7 +132,7 @@ docker exec -it matrix-media-repo \
         -dbHost matrix-postgres \
         -dbPort 5432 \
         -dbUsername matrix \
-        -dbPassword devture_postgres_connection_password
+        -dbPassword postgres_connection_password
 ```
 
 Enter `1` for the Machine ID when prompted (you are not doing any horizontal scaling) unless you know what you're doing.
@@ -125,7 +145,7 @@ If you're using the [Dendrite](configuring-playbook-dendrite.md) homeserver inst
 
 To import the Dendrite media store, you're supposed to invoke the `import_dendrite` tool which is part of the matrix-media-repo container image. Your Dendrite database is called `dendrite_mediaapi` by default, unless you've changed it by modifying `matrix_dendrite_media_api_database`.
 
-Run the following command on the server (after replacing `devture_postgres_connection_password` in it with the value found in your `vars.yml` file):
+Run the following command on the server (after replacing `postgres_connection_password` in it with the value found in your `vars.yml` file):
 
 ```sh
 docker exec -it matrix-media-repo \
@@ -134,7 +154,7 @@ docker exec -it matrix-media-repo \
         -dbHost matrix-postgres \
         -dbPort 5432 \
         -dbUsername matrix \
-        -dbPassword devture_postgres_connection_password
+        -dbPassword postgres_connection_password
 ```
 
 Enter `1` for the Machine ID when prompted (you are not doing any horizontal scaling) unless you know what you're doing.

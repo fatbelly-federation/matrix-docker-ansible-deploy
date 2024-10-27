@@ -8,19 +8,22 @@ To configure the playbook, you need to have done the following things:
 
 You can then follow these steps inside the playbook directory:
 
-1. create a directory to hold your configuration (`mkdir inventory/host_vars/matrix.<your-domain>`)
+1. create a directory to hold your configuration (`mkdir -p inventory/host_vars/matrix.example.com` where `example.com` is your "base domain")
 
-1. copy the sample configuration file (`cp examples/vars.yml inventory/host_vars/matrix.<your-domain>/vars.yml`)
+2. copy the sample configuration file (`cp examples/vars.yml inventory/host_vars/matrix.example.com/vars.yml`)
 
-1. edit the configuration file (`inventory/host_vars/matrix.<your-domain>/vars.yml`) to your liking. You may also take a look at the various `roles/*/ROLE_NAME_HERE/defaults/main.yml` files and see if there's something you'd like to copy over and override in your `vars.yml` configuration file.
+3. edit the configuration file (`inventory/host_vars/matrix.example.com/vars.yml`) to your liking. You may also take a look at the various `roles/*/ROLE_NAME_HERE/defaults/main.yml` files and see if there's something you'd like to copy over and override in your `vars.yml` configuration file.
 
-1. copy the sample inventory hosts file (`cp examples/hosts inventory/hosts`)
+4. copy the sample inventory hosts file (`cp examples/hosts inventory/hosts`)
 
-1. edit the inventory hosts file (`inventory/hosts`) to your liking
+5. edit the inventory hosts file (`inventory/hosts`) to your liking
 
-1. (optional, advanced) to run Ansible against multiple servers with different `sudo` credentials, you can copy the sample inventory hosts yaml file for each of your hosts: (`cp examples/host.yml inventory/my_host1.yml` …) and use the [`ansible-all-hosts.sh`](../inventory/scripts/ansible-all-hosts.sh) script [in the installation step](installing.md).
+6. (optional, advanced) you may wish to keep your `inventory` directory under version control with [git](https://git-scm.com/) or any other version-control system.
+
+7. (optional, advanced) to run Ansible against multiple servers with different `sudo` credentials, you can copy the sample inventory hosts yaml file for each of your hosts: (`cp examples/host.yml inventory/my_host1.yml` …) and use the [`ansible-all-hosts.sh`](../bin/ansible-all-hosts.sh) script [in the installation step](installing.md).
 
 For a basic Matrix installation, that's all you need.
+
 For a more custom setup, see the [Other configuration options](#other-configuration-options) below.
 
 When you're done with all the configuration you'd like to do, continue with [Installing](installing.md).
@@ -30,7 +33,7 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 ### Additional useful services
 
-- [Setting up the Dimension Integration Manager](configuring-playbook-dimension.md) (optional; [unmaintained](https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/2806#issuecomment-1673559299); after [installing](installing.md))
+- [Setting up the Dimension integration manager](configuring-playbook-dimension.md) (optional; [unmaintained](https://github.com/spantaleev/matrix-docker-ansible-deploy/issues/2806#issuecomment-1673559299); after [installing](installing.md))
 
 - [Setting up the Jitsi video-conferencing platform](configuring-playbook-jitsi.md) (optional)
 
@@ -39,6 +42,8 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 - [Setting up Dynamic DNS](configuring-playbook-dynamic-dns.md) (optional)
 
 - [Enabling metrics and graphs (Prometheus, Grafana) for your Matrix server](configuring-playbook-prometheus-grafana.md) (optional)
+
+- [Enabling synapse-usage-exporter for Synapse usage statistics](configuring-playbook-synapse-usage-exporter.md) (optional)
 
 ### Core service adjustments
 
@@ -61,9 +66,7 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Serving your base domain using this playbook's nginx server](configuring-playbook-base-domain-serving.md) (optional)
 
-- [Configure the Traefik reverse-proxy](configuring-playbook-traefik.md) (optional, advanced)
-
-- (Deprecated) [Configure the Nginx reverse-proxy](configuring-playbook-nginx.md) (optional, advanced)
+- [Configuring the Traefik reverse-proxy](configuring-playbook-traefik.md) (optional, advanced)
 
 - [Using your own webserver, instead of this playbook's default reverse-proxy](configuring-playbook-own-webserver.md) (optional, advanced)
 
@@ -78,7 +81,7 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Adjusting email-sending settings](configuring-playbook-email.md) (optional)
 
-- [Setting up Hydrogen](configuring-playbook-client-hydrogen.md) - a new lightweight matrix client with legacy and mobile browser support (optional)
+- [Setting up Hydrogen](configuring-playbook-client-hydrogen.md) - a new lightweight Matrix client with legacy and mobile browser support (optional)
 
 - [Setting up Cinny](configuring-playbook-client-cinny.md) - a web client focusing primarily on simple, elegant and secure interface (optional)
 
@@ -86,6 +89,10 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 
 ### Authentication and user-related
+
+- [Setting up Matrix Authentication Service](configuring-playbook-matrix-authentication-service.md) (Next-generation auth for Matrix, based on OAuth 2.0/OIDC) (optional)
+
+- [Setting up Appservice Double Puppet](configuring-playbook-appservice-double-puppet.md) (optional)
 
 - [Setting up an ma1sd Identity Server](configuring-playbook-ma1sd.md) (optional)
 
@@ -105,7 +112,9 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Matrix Corporal](configuring-playbook-matrix-corporal.md) (optional, advanced)
 
-- [Matrix User Verification Service](configuring-playbook-user-verification-service.md) (optional, advanced)
+- [Setting up Matrix User Verification Service](configuring-playbook-user-verification-service.md) (optional, advanced)
+
+- [Setting up Pantalaimon (E2EE aware proxy daemon)](configuring-playbook-pantalaimon.md) (optional, advanced)
 
 
 ### Bridging other networks
@@ -120,13 +129,17 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Mautrix Whatsapp bridging](configuring-playbook-bridge-mautrix-whatsapp.md) (optional)
 
-- [Setting up Mautrix Facebook bridging](configuring-playbook-bridge-mautrix-facebook.md) (optional)
+- [Setting up Instagram bridging via Mautrix Meta](configuring-playbook-bridge-mautrix-meta-instagram.md) (optional)
+
+- [Setting up Messenger bridging via Mautrix Meta](configuring-playbook-bridge-mautrix-meta-messenger.md) (optional)
+
+- ~~[Setting up Mautrix Facebook bridging](configuring-playbook-bridge-mautrix-facebook.md)~~ - consider bridging to Facebook/Messenger using the new [mautrix-meta-messenger](./configuring-playbook-bridge-mautrix-meta-messenger.md) bridge (optional)
 
 - [Setting up Mautrix Hangouts bridging](configuring-playbook-bridge-mautrix-hangouts.md) (optional)
 
 - [Setting up Mautrix Google Chat bridging](configuring-playbook-bridge-mautrix-googlechat.md) (optional)
 
-- [Setting up Mautrix Instagram bridging](configuring-playbook-bridge-mautrix-instagram.md) (optional)
+- ~~[Setting up Mautrix Instagram bridging](configuring-playbook-bridge-mautrix-instagram.md)~~ - consider bridging to Instagram using the new [mautrix-meta-instagram](./configuring-playbook-bridge-mautrix-meta-instagram.md) bridge (optional)
 
 - [Setting up Mautrix Twitter bridging](configuring-playbook-bridge-mautrix-twitter.md) (optional)
 
@@ -172,10 +185,14 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Heisenbridge bouncer-style IRC bridging](configuring-playbook-bridge-heisenbridge.md) (optional)
 
+- [Setting up WeChat bridging](configuring-playbook-bridge-wechat.md) (optional)
+
 
 ### Bots
 
-- [Setting up matrix-bot-chatgpt](configuring-playbook-bot-chatgpt.md) - a bot through which you can talk to the [ChatGPT](https://openai.com/blog/chatgpt/) model(optional)
+- [Setting up baibot](configuring-playbook-bot-baibot.md) - a bot through which you can talk to various [AI](https://en.wikipedia.org/wiki/Artificial_intelligence) / [Large Language Models](https://en.wikipedia.org/wiki/Large_language_model) services ([OpenAI](https://openai.com/)'s [ChatGPT](https://openai.com/blog/chatgpt/) and [others](https://github.com/etkecc/baibot/blob/main/docs/providers.md)) (optional)
+
+- [Setting up matrix-bot-chatgpt](configuring-playbook-bot-chatgpt.md) - a bot through which you can talk to the [ChatGPT](https://openai.com/blog/chatgpt/) model (optional)
 
 - [Setting up matrix-reminder-bot](configuring-playbook-bot-matrix-reminder-bot.md) - a bot to remind you about stuff (optional)
 
@@ -191,12 +208,14 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up Draupnir](configuring-playbook-bot-draupnir.md) - a moderation tool/bot, forked from Mjolnir and maintained by its former leader developer (optional)
 
+- [Setting up Draupnir for all](configuring-playbook-appservice-draupnir-for-all.md) - like the [Draupnir bot](configuring-playbook-bot-draupnir.md) mentioned above, but running in appservice mode and supporting multiple instances (optional)
+
 - [Setting up Buscarron](configuring-playbook-bot-buscarron.md) - a bot you can use to send any form (HTTP POST, HTML) to a (encrypted) Matrix room (optional)
 
 
 ### Backups
 
-- [Setting up borg backup](configuring-playbook-backup-borg.md) - a full Matrix server backup solution, including the Postgres database (optional)
+- [Setting up BorgBackup](configuring-playbook-backup-borg.md) - a full Matrix server backup solution, including the Postgres database (optional)
 
 - [Setting up postgres backup](configuring-playbook-postgres-backup.md) - a Postgres-database backup solution (note: does not include other files) (optional)
 
@@ -205,7 +224,7 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up synapse-auto-compressor](configuring-playbook-synapse-auto-compressor.md) for compressing the database on Synapse homeservers (optional)
 
-- [Setting up the Sliding Sync Proxy](configuring-playbook-sliding-sync-proxy.md) for clients which require Sliding Sync support (like Element X) (optional)
+- [Setting up the Sliding Sync proxy](configuring-playbook-sliding-sync-proxy.md) for clients which require Sliding Sync support (like Element X) (optional)
 
 - [Setting up the Sygnal push gateway](configuring-playbook-sygnal.md) (optional)
 
@@ -213,4 +232,6 @@ When you're done with all the configuration you'd like to do, continue with [Ins
 
 - [Setting up a Cactus Comments server](configuring-playbook-cactus-comments.md) - a federated comment system built on Matrix (optional)
 
-- [Setting up the Rageshake bug report server](configuring-playbook-rageshake.md) (optional)
+- [Setting up the rageshake bug report server](configuring-playbook-rageshake.md) (optional)
+
+- [Setting up Prometheus Alertmanager integration via matrix-alertmanager-receiver](configuring-playbook-alertmanager-receiver.md) (optional)

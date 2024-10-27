@@ -13,10 +13,10 @@
     - when: "matrix_mautrix_gmessages_sqlite_database_path_local_stat_result.stat.exists | bool"
       block:
         - ansible.builtin.include_role:
-            name: galaxy/com.devture.ansible.role.postgres
+            name: galaxy/postgres
             tasks_from: migrate_db_to_postgres
           vars:
-            devture_postgres_db_migration_request:
+            postgres_db_migration_request:
               src: "{{ matrix_mautrix_gmessages_sqlite_database_path_local }}"
               dst: "{{ matrix_mautrix_gmessages_database_connection_string }}"
               caller: "{{ role_path | basename }}"
@@ -82,7 +82,7 @@
     path: "{{ matrix_mautrix_gmessages_base_path }}/mautrix-gmessages.db"
   register: matrix_mautrix_gmessages_stat_database
 
-- name: Check if an old matrix state file exists
+- name: Check if an old Matrix state file exists
   ansible.builtin.stat:
     path: "{{ matrix_mautrix_gmessages_base_path }}/mx-state.json"
   register: matrix_mautrix_gmessages_stat_mx_state
@@ -131,6 +131,23 @@
     src: "{{ role_path }}/templates/systemd/matrix-mautrix-gmessages.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/matrix-mautrix-gmessages.service"
     mode: 0644
+
+- name: Ensure mautrix-gmessages support files installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ matrix_mautrix_gmessages_base_path }}/{{ item }}"
+    mode: 0640
+    owner: "{{ matrix_user_username }}"
+    group: "{{ matrix_user_groupname }}"
+  with_items:
+    - labels
+
+- name: Ensure matrix-mautrix-gmessages container network is created
+  community.general.docker_network:
+    enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
+    name: "{{ matrix_mautrix_gmessages_container_network }}"
+    driver: bridge
+    driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
 - name: Ensure matrix-mautrix-gmessages.service restarted, if necessary
   ansible.builtin.service:

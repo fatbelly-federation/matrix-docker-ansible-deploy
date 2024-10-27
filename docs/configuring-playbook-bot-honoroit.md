@@ -1,22 +1,18 @@
 # Setting up Honoroit (optional)
 
-The playbook can install and configure [Honoroit](https://gitlab.com/etke.cc/honoroit) for you.
+The playbook can install and configure [Honoroit](https://github.com/etkecc/honoroit) for you.
 
 It's a bot you can use to setup **your own helpdesk on matrix**
 
-See the project's [documentation](https://gitlab.com/etke.cc/honoroit#how-it-looks-like) to learn what it does with screenshots and why it might be useful to you.
+See the project's [documentation](https://github.com/etkecc/honoroit#how-it-looks-like) to learn what it does with screenshots and why it might be useful to you.
 
 
 ## Adjusting the playbook configuration
 
-Add the following configuration to your `inventory/host_vars/matrix.DOMAIN/vars.yml` file:
+To enable Honoroit, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
 
 ```yaml
 matrix_bot_honoroit_enabled: true
-
-# Uncomment and adjust if you'd like to change the hostname or path
-# matrix_bot_honoroit_hostname: "{{ matrix_server_fqn_matrix }}"
-# matrix_bot_honoroit_path_prefix: /honoroit
 
 # Uncomment and adjust this part if you'd like to use a username different than the default
 # matrix_bot_honoroit_login: honoroit
@@ -25,13 +21,34 @@ matrix_bot_honoroit_enabled: true
 matrix_bot_honoroit_password: PASSWORD_FOR_THE_BOT
 
 # Adjust this to your room ID
-matrix_bot_honoroit_roomid: "!yourRoomID:DOMAIN"
+matrix_bot_honoroit_roomid: "!qporfwt:{{ matrix_domain }}"
 ```
 
+### Adjusting the Honoroit URL
+
+By default, this playbook installs Honoroit on the `matrix.` subdomain, at the `/honoroit` path (https://matrix.example.com/honoroit). This makes it easy to install it, because it **doesn't require additional DNS records to be set up**. If that's okay, you can skip this section.
+
+By tweaking the `matrix_bot_honoroit_hostname` and `matrix_bot_honoroit_path_prefix` variables, you can easily make the service available at a **different hostname and/or path** than the default one.
+
+Example additional configuration for your `inventory/host_vars/matrix.example.com/vars.yml` file:
+
+```yaml
+# Change the default hostname and path prefix
+matrix_bot_honoroit_hostname: honoroit.example.com
+matrix_bot_honoroit_path_prefix: /
+```
+
+## Adjusting DNS records
+
+If you've changed the default hostname, **you may need to adjust your DNS** records to point the Honoroit domain to the Matrix server.
+
+See [Configuring DNS](configuring-dns.md) for details about DNS changes.
+
+If you've decided to use the default hostname, you won't need to do any extra DNS configuration.
 
 ## Installing
 
-After configuring the playbook, run the [installation](installing.md) command again:
+After configuring the playbook and potentially [adjusting your DNS records](#adjusting-dns-records), run the [installation](installing.md) command:
 
 ```sh
 ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,ensure-matrix-users-created,start
@@ -46,8 +63,8 @@ ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,ensure-matrix-use
 
 ## Usage
 
-To use the bot, invite the `@honoroit:DOMAIN` to the room you specified in config, after that any matrix user can send a message to the `@honoroit:DOMAIN` to start a new thread in that room.
+To use the bot, invite the `@honoroit:example.com` to the room you specified in config, after that any Matrix user can send a message to the `@honoroit:example.com` to start a new thread in that room.
 
 Send `!ho help` to the room to see the bot's help menu for additional commands.
 
-You can also refer to the upstream [documentation](https://gitlab.com/etke.cc/honoroit#features).
+You can also refer to the upstream [documentation](https://github.com/etkecc/honoroit#features).

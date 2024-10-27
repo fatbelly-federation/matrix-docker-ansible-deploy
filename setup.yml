@@ -6,6 +6,9 @@
   roles:
     # Most of the roles below are not distributed with the playbook, but downloaded separately using `ansible-galaxy` via the `just roles` command (see `justfile`).
     - role: galaxy/playbook_help
+      tags:
+        - setup-all
+        - install-all
 
     - role: galaxy/systemd_docker_base
 
@@ -40,12 +43,17 @@
 
     - custom/matrix-base
     - custom/matrix-dynamic-dns
-    - custom/matrix-mailer
+    - galaxy/exim_relay
 
     - role: galaxy/postgres
 
     - galaxy/redis
+    - galaxy/keydb
+    - role: custom/matrix-authentication-service
     - custom/matrix-corporal
+    - custom/matrix-appservice-draupnir-for-all
+    - custom/matrix-appservice-double-puppet
+    - custom/matrix-alertmanager-receiver
     - custom/matrix-bridge-appservice-discord
     - custom/matrix-bridge-appservice-slack
     - custom/matrix-bridge-appservice-webhooks
@@ -53,13 +61,16 @@
     - custom/matrix-bridge-appservice-kakaotalk
     - custom/matrix-bridge-beeper-linkedin
     - custom/matrix-bridge-go-skype-bridge
+    - custom/matrix-bridge-wechat
     - custom/matrix-bridge-mautrix-facebook
     - custom/matrix-bridge-mautrix-twitter
     - custom/matrix-bridge-mautrix-hangouts
     - custom/matrix-bridge-mautrix-googlechat
     - custom/matrix-bridge-mautrix-instagram
-    - custom/matrix-bridge-mautrix-signal
+    - custom/matrix-bridge-mautrix-meta-messenger
+    - custom/matrix-bridge-mautrix-meta-instagram
     - custom/matrix-bridge-mautrix-telegram
+    - custom/matrix-bridge-mautrix-signal
     - custom/matrix-bridge-mautrix-gmessages
     - custom/matrix-bridge-mautrix-whatsapp
     - custom/matrix-bridge-mautrix-wsproxy
@@ -78,6 +89,7 @@
     - custom/matrix-bot-matrix-registration-bot
     - custom/matrix-bot-maubot
     - custom/matrix-bot-buscarron
+    - custom/matrix-bot-baibot
     - custom/matrix-bot-honoroit
     - custom/matrix-bot-postmoogle
     - custom/matrix-bot-go-neb
@@ -85,6 +97,7 @@
     - custom/matrix-bot-draupnir
     - custom/matrix-bot-chatgpt
     - custom/matrix-cactus-comments
+    - custom/matrix-cactus-comments-client
     - custom/matrix-rageshake
     - custom/matrix-synapse
     - custom/matrix-synapse-auto-compressor
@@ -92,13 +105,13 @@
     - custom/matrix-dendrite
     - custom/matrix-conduit
     - custom/matrix-synapse-admin
+    - custom/matrix-synapse-usage-exporter
     - galaxy/prometheus_node_exporter
     - galaxy/prometheus_postgres_exporter
     - custom/matrix-prometheus-nginxlog-exporter
     - galaxy/prometheus
     - galaxy/grafana
     - custom/matrix-prometheus-services-connect
-    - custom/matrix-prometheus-services-proxy-connect
     - custom/matrix-registration
     - custom/matrix-client-element
     - custom/matrix-client-hydrogen
@@ -110,16 +123,14 @@
     - custom/matrix-ma1sd
     - custom/matrix-dimension
     - galaxy/etherpad
-    - custom/etherpad-proxy-connect
     - custom/matrix-sliding-sync
     - custom/matrix-email2matrix
     - custom/matrix-sygnal
     - galaxy/ntfy
-    - custom/matrix-nginx-proxy
+    - custom/matrix-static-files
     - custom/matrix-coturn
     - custom/matrix-media-repo
-
-    - role: galaxy/auxiliary
+    - custom/matrix-pantalaimon
 
     - role: galaxy/postgres_backup
 
@@ -133,6 +144,8 @@
     - role: galaxy/traefik
 
     - role: galaxy/traefik_certs_dumper
+
+    - role: galaxy/auxiliary
 
     - when: devture_systemd_service_manager_enabled | bool
       role: galaxy/systemd_service_manager

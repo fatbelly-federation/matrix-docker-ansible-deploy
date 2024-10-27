@@ -6,7 +6,11 @@ See the project's [documentation](https://docs.mau.fi/bridges/python/signal/inde
 
 **Note/Prerequisite**: If you're running with the Postgres database server integrated by the playbook (which is the default), you don't need to do anything special and can easily proceed with installing. However, if you're [using an external Postgres server](configuring-playbook-external-postgres.md), you'd need to manually prepare a Postgres database for this bridge and adjust the variables related to that (`matrix_mautrix_signal_database_*`).
 
-Use the following playbook configuration:
+**Note**: This revamped version of the [mautrix-signal (legacy)](configuring-playbook-bridge-mautrix-signal.md) may increase the CPU usage of your homeserver.
+
+## Adjusting the playbook configuration
+
+To enable the bridge, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
 
 ```yaml
 matrix_mautrix_signal_enabled: true
@@ -14,14 +18,7 @@ matrix_mautrix_signal_enabled: true
 
 There are some additional things you may wish to configure about the bridge before you continue.
 
-The relay bot functionality is off by default. If you would like to enable the relay bot, add the following to your `vars.yml` file:
-```yaml
-matrix_mautrix_signal_relaybot_enabled: true
-```
-If you want to activate the relay bot in a room, use `!signal set-relay`.
-Use `!signal unset-relay` to deactivate.
 By default, any user on your homeserver will be able to use the bridge.
-If you enable the relay bot functionality, it will relay every user's messages in a portal room - no matter which homeserver they're from.
 
 Different levels of permission can be granted to users:
 
@@ -35,7 +32,7 @@ The default permissions are set as follows:
 ```yaml
 permissions:
   '*': relay
-  YOUR_DOMAIN: user
+  example.com: user
 ```
 
 If you want to augment the preset permissions, you might want to set the additional permissions with the following settings in your `vars.yml` file:
@@ -43,27 +40,31 @@ If you want to augment the preset permissions, you might want to set the additio
 matrix_mautrix_signal_configuration_extension_yaml: |
   bridge:
     permissions:
-      '@YOUR_USERNAME:YOUR_DOMAIN': admin
+      '@YOUR_USERNAME:example.com': admin
 ```
 
-This will add the admin permission to the specific user, while keepting the default permissions.
+This will add the admin permission to the specific user, while keeping the default permissions.
 
 In case you want to replace the default permissions settings **completely**, populate the following item within your `vars.yml` file:
 ```yaml
-matrix_mautrix_signal_bridge_permissions: |
-  '@ADMIN:YOUR_DOMAIN': admin
-  '@USER:YOUR_DOMAIN' : user
+matrix_mautrix_signal_bridge_permissions:
+  '@ADMIN:example.com': admin
+  '@USER:example.com' : user
 ```
 
 You may wish to look at `roles/custom/matrix-bridge-mautrix-signal/templates/config.yaml.j2` to find more information on the permissions settings and other options you would like to configure.
+
+## Installing
+
+After configuring the playbook, run the [installation](installing.md) command: `just install-all` or `just setup-all`
 
 ## Set up Double Puppeting
 
 If you'd like to use [Double Puppeting](https://docs.mau.fi/bridges/general/double-puppeting.html) (hint: you most likely do), you have 2 ways of going about it.
 
-### Method 1: automatically, by enabling Shared Secret Auth
+### Method 1: automatically, by enabling Appservice Double Puppet
 
-The bridge will automatically perform Double Puppeting if you enable [Shared Secret Auth](configuring-playbook-shared-secret-auth.md) for this playbook.
+The bridge will automatically perform Double Puppeting if you enable the [Appservice Double Puppet](configuring-playbook-appservice-double-puppet.md) service for this playbook.
 
 This is the recommended way of setting up Double Puppeting, as it's easier to accomplish, works for all your users automatically, and has less of a chance of breaking in the future.
 
@@ -82,4 +83,4 @@ When using this method, **each user** that wishes to enable Double Puppeting nee
 
 ## Usage
 
-You then need to start a chat with `@signalbot:YOUR_DOMAIN` (where `YOUR_DOMAIN` is your base domain, not the `matrix.` domain).
+You then need to start a chat with `@signalbot:example.com` (where `example.com` is your base domain, not the `matrix.` domain).

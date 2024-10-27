@@ -24,34 +24,9 @@ ansible-playbook -i inventory/hosts setup.yml --extra-vars='username=bot.go-neb 
 Once the user is created you can [obtain an access token](obtaining-access-tokens.md).
 
 
-## Decide on a domain and path
-
-By default, Go-NEB is configured to use its own dedicated domain (`goneb.DOMAIN`) and requires you to [adjust your DNS records](#adjusting-dns-records).
-
-You can override the domain and path like this:
-
-```yaml
-# Switch to the domain used for Matrix services (`matrix.DOMAIN`),
-# so we won't need to add additional DNS records for Go-NEB.
-matrix_bot_go_neb_hostname: "{{ matrix_server_fqn_matrix }}"
-
-# Expose under the /go-neb subpath
-matrix_bot_go_neb_path_prefix: /go-neb
-```
-
-**NOTE**: When using `matrix-nginx-proxy` instead of Traefik, you won't be able to override the path prefix. You can only override the domain, but that needs to happen using another variable: `matrix_server_fqn_go_neb` (e.g. `matrix_server_fqn_go_neb: "mybot.{{ matrix_domain }}"`).
-
-
-## Adjusting DNS records
-
-Once you've decided on the domain and path, **you may need to adjust your DNS** records to point the Go-NEB domain to the Matrix server.
-
-If you've decided to reuse the `matrix.` domain, you won't need to do any extra DNS configuration.
-
-
 ## Adjusting the playbook configuration
 
-Add the following configuration to your `inventory/host_vars/matrix.DOMAIN/vars.yml` file (adapt to your needs):
+To enable Go-NEB, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
 
 ```yaml
 matrix_bot_go_neb_enabled: true
@@ -62,7 +37,7 @@ matrix_bot_go_neb_clients:
   - UserID: "@goneb:{{ matrix_domain }}"
     AccessToken: "MDASDASJDIASDJASDAFGFRGER"
     DeviceID: "DEVICE1"
-    HomeserverURL: "{{ matrix_homeserver_container_url }}"
+    HomeserverURL: "{{ matrix_addons_homeserver_client_api_url }}"
     Sync: true
     AutoJoinRooms: true
     DisplayName: "Go-NEB!"
@@ -71,7 +46,7 @@ matrix_bot_go_neb_clients:
   - UserID: "@another_goneb:{{ matrix_domain }}"
     AccessToken: "MDASDASJDIASDJASDAFGFRGER"
     DeviceID: "DEVICE2"
-    HomeserverURL: "{{ matrix_homeserver_container_url }}"
+    HomeserverURL: "{{ matrix_addons_homeserver_client_api_url }}"
     Sync: false
     AutoJoinRooms: false
     DisplayName: "Go-NEB!"
@@ -150,7 +125,7 @@ matrix_bot_go_neb_services:
     Config:
       feeds:
         "http://lorem-rss.herokuapp.com/feed?unit=second&interval=60":
-          rooms: ["!qmElAGdFYCHoCJuaNt:{{ matrix_domain }}"]
+          rooms: ["!qporfwt:{{ matrix_domain }}"]
           must_include:
             author:
               - author1
@@ -176,15 +151,15 @@ matrix_bot_go_neb_services:
       RealmID: "github_realm"
       ClientUserID: "@YOUR_USER_ID:{{ matrix_domain }}" # needs to be an authenticated user so Go-NEB can create webhooks. Check the UserID field in the github_realm in matrix_bot_go_neb_sessions.
       Rooms:
-        "!someroom:id":
+        "!qporfwt:example.com":
           Repos:
-            "matrix-org/synapse":
+            "element-hq/synapse":
               Events: ["push", "issues"]
             "matrix-org/dendron":
               Events: ["pull_request"]
-        "!anotherroom:id":
+        "!aaabaa:example.com":
           Repos:
-            "matrix-org/synapse":
+            "element-hq/synapse":
               Events: ["push", "issues"]
             "matrix-org/dendron":
               Events: ["pull_request"]
@@ -195,7 +170,7 @@ matrix_bot_go_neb_services:
     Config:
       Hooks:
         "hook1":
-          RoomID: "!someroom:id"
+          RoomID: "!qporfwt:example.com"
           MessageType: "m.text" # default is m.text
 
   - ID: "alertmanager_service"
@@ -209,16 +184,40 @@ matrix_bot_go_neb_services:
       webhook_url: "http://localhost/services/hooks/YWxlcnRtYW5hZ2VyX3NlcnZpY2U"
       # Each room will get the notification with the alert rendered with the given template
       rooms:
-        "!someroomid:domain.tld":
+        "!qporfwt:example.com":
           text_template: "{% raw %}{{range .Alerts -}} [{{ .Status }}] {{index .Labels \"alertname\" }}: {{index .Annotations \"description\"}} {{ end -}}{% endraw %}"
           html_template: "{% raw %}{{range .Alerts -}}  {{ $severity := index .Labels \"severity\" }}    {{ if eq .Status \"firing\" }}      {{ if eq $severity \"critical\"}}        <font color='red'><b>[FIRING - CRITICAL]</b></font>      {{ else if eq $severity \"warning\"}}        <font color='orange'><b>[FIRING - WARNING]</b></font>      {{ else }}        <b>[FIRING - {{ $severity }}]</b>      {{ end }}    {{ else }}      <font color='green'><b>[RESOLVED]</b></font>    {{ end }}  {{ index .Labels \"alertname\"}} : {{ index .Annotations \"description\"}}   <a href=\"{{ .GeneratorURL }}\">source</a><br/>{{end -}}{% endraw %}"
           msg_type: "m.text"  # Must be either `m.text` or `m.notice`
 ```
 
+### Adjusting the Go-NEB URL
+
+By default, this playbook installs Go-NEB on the `goneb.` subdomain (`goneb.example.com`) and requires you to [adjust your DNS records](#adjusting-dns-records).
+
+By tweaking the `matrix_bot_go_neb_hostname` and `matrix_bot_go_neb_path_prefix` variables, you can easily make the service available at a **different hostname and/or path** than the default one.
+
+Example additional configuration for your `inventory/host_vars/matrix.example.com/vars.yml` file:
+
+```yaml
+# Switch to the domain used for Matrix services (`matrix.example.com`),
+# so we won't need to add additional DNS records for Go-NEB.
+matrix_bot_go_neb_hostname: "{{ matrix_server_fqn_matrix }}"
+
+# Expose under the /buscarron subpath
+matrix_bot_go_neb_path_prefix: /go-neb
+```
+
+## Adjusting DNS records
+
+Once you've decided on the domain and path, **you may need to adjust your DNS** records to point the Go-NEB domain to the Matrix server.
+
+By default, you will need to create a CNAME record for `goneb`. See [Configuring DNS](configuring-dns.md) for details about DNS changes.
+
+If you've decided to reuse the `matrix.` domain, you won't need to do any extra DNS configuration.
 
 ## Installing
 
-After potentially [adjusting DNS records](#adjusting-dns-records) and configuring the playbook, run the [installation](installing.md) command again:
+After configuring the playbook and potentially [adjusting your DNS records](#adjusting-dns-records), run the [installation](installing.md) command:
 
 ```
 ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start
@@ -227,7 +226,7 @@ ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start
 
 ## Usage
 
-To use the bot, invite it to any existing Matrix room (`/invite @whatever_you_chose:DOMAIN` where `YOUR_DOMAIN` is your base domain, not the `matrix.` domain, make sure you have permission from the room owner if that's not you).
+To use the bot, invite it to any existing Matrix room (`/invite @whatever_you_chose:example.com` where `example.com` is your base domain, not the `matrix.` domain, make sure you have permission from the room owner if that's not you).
 
 Basic usage is like this: `!echo hi` or `!imgur puppies` or `!giphy matrix`
 

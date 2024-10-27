@@ -47,6 +47,7 @@ gitlab:
   instances: {{ matrix_hookshot_gitlab_instances | to_json }}
   webhook:
     secret: {{ matrix_hookshot_gitlab_webhook_secret | to_json }}
+    publicUrl: {{ matrix_hookshot_gitlab_webhook_publicUrl | to_json }}
 {% endif %}
 {% if matrix_hookshot_figma_enabled %}
 figma:
@@ -73,6 +74,7 @@ generic:
   # (Optional) Support for generic webhook events. `allowJsTransformationFunctions` will allow users to write short transformation snippets in code, and thus is unsafe in untrusted environments
   #
   enabled: {{ matrix_hookshot_generic_enabled | to_json }}
+  outbound: {{ matrix_hookshot_generic_outbound | to_json }}
   enableHttpGet: {{ matrix_hookshot_generic_enableHttpGet | to_json }}
   urlPrefix: {{ matrix_hookshot_generic_urlPrefix | to_json }}
   userIdPrefix: {{ matrix_hookshot_generic_userIdPrefix | to_json }}
@@ -107,11 +109,9 @@ metrics:
   # (Optional) Prometheus metrics support
   #
   enabled: {{ matrix_hookshot_metrics_enabled | to_json }}
-{% if matrix_hookshot_queue_host != '' %}
-queue:
-  monolithic: true
-  port: {{ matrix_hookshot_queue_port }}
-  host: {{ matrix_hookshot_queue_host | to_json }}
+{% if matrix_hookshot_cache_redisUri %}
+cache:
+  redisUri: {{ matrix_hookshot_cache_redisUri | to_json }}
 {% endif %}
 {% if matrix_hookshot_experimental_encryption_enabled %}
 experimentalEncryption:

@@ -2,7 +2,9 @@
 
 If you've [configured your DNS](configuring-dns.md) and have [configured the playbook](configuring-playbook.md), you can start the installation procedure.
 
-**Before installing** and each time you update the playbook in the future, you will need to update the Ansible roles in this playbook by running `just roles`. `just roles` is a shortcut (a `roles` target defined in [`justfile`](../justfile) and executed by the [`just`](https://github.com/casey/just) utility) which ultimately runs [ansible-galaxy](https://docs.ansible.com/ansible/latest/cli/ansible-galaxy.html) to download Ansible roles. If you don't have `just`, you can also manually run the `roles` commands seen in the `justfile`.
+**Before installing** and each time you update the playbook in the future, you will need to update the Ansible roles in this playbook by running `just roles`. `just roles` is a shortcut (a `roles` target defined in [`justfile`](../justfile) and executed by the [`just`](https://github.com/casey/just) utility) which ultimately runs [agru](https://github.com/etkecc/agru) or [ansible-galaxy](https://docs.ansible.com/ansible/latest/cli/ansible-galaxy.html) (depending on what is available in your system) to download Ansible roles. If you don't have `just`, you can also manually run the `roles` commands seen in the `justfile`.
+
+There's another shortcut (`just update`) which updates the playbook (`git pull`) and updates roles (`just update`) at the same time.
 
 
 ## Playbook tags introduction
@@ -54,8 +56,7 @@ Proceed to [Maintaining your setup in the future](#2-maintaining-your-setup-in-t
 
 ### Installing a server into which you'll import old data
 
-If you will be importing data into your newly created Matrix server, install it, but **do not** start its services just yet.
-Starting its services or messing with its database now will affect your data import later on.
+If you will be importing data into your newly created Matrix server, install it, but **do not** start its services just yet. Starting its services or messing with its database now will affect your data import later on.
 
 To do the installation **without** starting services, run only the `install-all` tag:
 
@@ -106,6 +107,6 @@ After you have started the services and **finalized the installation process** (
 - or learn how to [upgrade services when new versions are released](maintenance-upgrading-services.md)
 - or learn how to [maintain your server](faq.md#maintenance)
 - or join some Matrix rooms:
-  * via the *Explore rooms* feature in Element or some other client, or by discovering them using this [matrix-static list](https://view.matrix.org). Note: joining large rooms may overload small servers.
+  * via the *Explore rooms* feature in Element or some other client, or by discovering them using this [matrix-static list](https://view.matrix.org). **Note**: joining large rooms may overload small servers.
   * or come say Hi in our support room - [#matrix-docker-ansible-deploy:devture.com](https://matrix.to/#/#matrix-docker-ansible-deploy:devture.com). You might learn something or get to help someone else new to Matrix hosting.
 - or help make this playbook better by contributing (code, documentation, or [coffee/beer](https://liberapay.com/s.pantaleev/donate))
