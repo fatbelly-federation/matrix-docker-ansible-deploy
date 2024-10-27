@@ -18,9 +18,9 @@ For using this bridge, you would need to authenticate by **providing your userna
 Note that neither of these methods are officially supported by Slack. [matrix-appservice-slack](configuring-playbook-bridge-appservice-slack.md) uses a Slack bot account which is the only officially supported method for bridging a Slack channel.
 
 
-## Installing
+## Adjusting the playbook configuration
 
-To enable the bridge, add this to your `vars.yml` file:
+To enable the bridge, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
 
 ```yaml
 matrix_mautrix_slack_enabled: true
@@ -28,7 +28,13 @@ matrix_mautrix_slack_enabled: true
 
 You may optionally wish to add some [Additional configuration](#additional-configuration), or to [prepare for double-puppeting](#set-up-double-puppeting) before the initial installation.
 
-After adjusting your `vars.yml` file, re-run the playbook and restart all services: `ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start`
+## Installing
+
+After configuring the playbook, run the [installation](installing.md) command:
+
+```
+ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start
+```
 
 To make use of the bridge, see [Usage](#usage) below.
 
@@ -47,9 +53,9 @@ Take a look at:
 
 If you'd like to use [Double Puppeting](https://docs.mau.fi/bridges/general/double-puppeting.html) (hint: you most likely do), you have 2 ways of going about it.
 
-#### Method 1: automatically, by enabling Shared Secret Auth
+#### Method 1: automatically, by enabling Appservice Double Puppet
 
-The bridge will automatically perform Double Puppeting if you enable [Shared Secret Auth](configuring-playbook-shared-secret-auth.md) for this playbook.
+The bridge will automatically perform Double Puppeting if you enable the [Appservice Double Puppet](configuring-playbook-appservice-double-puppet.md) service for this playbook.
 
 This is the recommended way of setting up Double Puppeting, as it's easier to accomplish, works for all your users automatically, and has less of a chance of breaking in the future.
 
@@ -68,7 +74,7 @@ When using this method, **each user** that wishes to enable Double Puppeting nee
 
 ## Usage
 
-1. Start a chat with `@slackbot:YOUR_DOMAIN` (where `YOUR_DOMAIN` is your base domain, not the `matrix.` domain).
+1. Start a chat with `@slackbot:example.com` (where `example.com` is your base domain, not the `matrix.` domain).
 2. If you would like to login to Slack using a token, send the `login-token` command, otherwise, send the `login-password` command. Read [here](https://docs.mau.fi/bridges/go/slack/authentication.html) on how to retrieve your token and cookie token.
 3. The bot should respond with "Successfully logged into <email> for team <workspace>"
 4. Now that you're logged in, you can send a `help` command to the bot again, to see additional commands you have access to.

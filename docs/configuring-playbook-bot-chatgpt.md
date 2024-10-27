@@ -4,6 +4,8 @@ The playbook can install and configure [matrix-chatgpt-bot](https://github.com/m
 
 Talk to [ChatGPT](https://openai.com/blog/chatgpt/) via your favourite Matrix client!
 
+**Note**: [matrix-chatgpt-bot](https://github.com/matrixgpt/matrix-chatgpt-bot) is now an archived (**unmaintained**) project. Talking to ChatGPT (and many other LLM providers) can happen via the much more featureful [baibot](./configuring-playbook-bot-baibot.md) bot supported by the playbook.
+
 
 ## 1. Register the bot account
 
@@ -29,7 +31,7 @@ To make sure the bot can read encrypted messages, it will need an encryption key
 
 ## 3. Adjusting the playbook configuration
 
-Add the following configuration to your `inventory/host_vars/matrix.DOMAIN/vars.yml` file (adapt to your needs):
+Add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file (adapt to your needs):
 
 ```yaml
 matrix_bot_chatgpt_enabled: true
@@ -55,7 +57,7 @@ You will need to get tokens for ChatGPT.
 
 ## 4. Installing
 
-After configuring the playbook, run the [installation](installing.md) command again:
+After configuring the playbook, run the [installation](installing.md) command:
 
 ```sh
 ansible-playbook -i inventory/hosts setup.yml --tags=install-all,start
@@ -64,6 +66,6 @@ ansible-playbook -i inventory/hosts setup.yml --tags=install-all,start
 
 ## Usage
 
-To use the bot, invite the `@bot.chatgpt:DOMAIN` to the room you specified in a config, after that start speaking to it, use the prefix if you configured one or mention the bot.
+To use the bot, invite the `@bot.chatgpt:example.com` to the room you specified in a config, after that start speaking to it, use the prefix if you configured one or mention the bot.
 
 You can also refer to the upstream [documentation](https://github.com/matrixgpt/matrix-chatgpt-bot).

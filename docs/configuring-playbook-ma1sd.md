@@ -10,14 +10,15 @@ This server is private by default, potentially at the expense of user discoverab
 
 **Note**: enabling ma1sd, means that the `openid` API endpoints will be exposed on the Matrix Federation port (usually `8448`), even if [federation](configuring-playbook-federation.md) is disabled. It's something to be aware of, especially in terms of firewall whitelisting (make sure port `8448` is accessible).
 
-To enable ma1sd, use the following additional configuration in your `vars.yml` file:
+## Adjusting the playbook configuration
+
+To enable ma1sd, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
 
 ```yaml
 matrix_ma1sd_enabled: true
 ```
 
-
-## Matrix.org lookup forwarding
+### Matrix.org lookup forwarding
 
 To ensure maximum discovery, you can make your identity server also forward lookups to the central matrix.org Identity server (at the cost of potentially leaking all your contacts information).
 
@@ -29,12 +30,13 @@ Enabling matrix.org forwarding can happen with the following configuration:
 matrix_ma1sd_matrixorg_forwarding_enabled: true
 ```
 
+### Customizing email templates
 
-## Customizing email templates
+If you'd like to change the default email templates used by ma1sd, take a look at the `matrix_ma1sd_threepid_medium_email_custom_` variables (in the `roles/custom/matrix-ma1sd/defaults/main.yml` file.
 
-If you'd like to change the default email templates used by ma1sd, take a look at the `matrix_ma1sd_threepid_medium_email_custom_` variables
-(in the `roles/custom/matrix-ma1sd/defaults/main.yml` file.
+## Installing
 
+After configuring the playbook, run the [installation](installing.md) command: `just install-all` or `just setup-all`
 
 ## ma1sd-controlled Registration
 
@@ -44,13 +46,13 @@ To use the [Registration](https://github.com/ma1uta/ma1sd/blob/master/docs/featu
 
 - `matrix_synapse_enable_registration_captcha` - to validate registering users using reCAPTCHA, as described in the [enabling reCAPTCHA](configuring_captcha.md) documentation.
 
-- `matrix_synapse_registrations_require_3pid` - to control the types of 3pid (`'email'`, `'msisdn'`) required by the Synapse server for registering
+- `matrix_synapse_registrations_require_3pid` - a list of 3pid types (among `'email'`, `'msisdn'`) required by the Synapse server for registering
 
-- variables prefixed with `matrix_nginx_proxy_proxy_matrix_3pid_registration_` (e.g. `matrix_nginx_proxy_proxy_matrix_3pid_registration_enabled`) - to configure the integrated nginx webserver to send registration requests to ma1sd (instead of Synapse), so it can apply its additional functionality
+- variables prefixed with `matrix_ma1sd_container_labels_` (e.g. `matrix_ma1sd_container_labels_matrix_client_3pid_registration_enabled`) - to configure the Traefik reverse-proxy to capture and send registration requests to ma1sd (instead of Synapse), so it can apply its additional functionality
 
 - `matrix_ma1sd_configuration_extension_yaml` - to configure ma1sd as required. See the [Registration feature's docs](https://github.com/ma1uta/ma1sd/blob/master/docs/features/registration.md) for inspiration. Also see the [Additional features](#additional-features) section below to learn more about how to use `matrix_ma1sd_configuration_extension_yaml`.
 
-**Note**: For this to work, either the homeserver needs to [federate](configuring-playbook-federation.md) or the `openid` APIs need to exposed on the federation port. When federation is disabled and ma1sd is enabled, we automatically expose the `openid` APIs (only!) on the federation port. Make sure the federation port (usually `https://matrix.DOMAIN:8448`) is whitelisted in your firewall (even if you don't actually use/need federation).
+**Note**: For this to work, either the homeserver needs to [federate](configuring-playbook-federation.md) or the `openid` APIs need to exposed on the federation port. When federation is disabled and ma1sd is enabled, we automatically expose the `openid` APIs (only!) on the federation port. Make sure the federation port (usually `https://matrix.example.com:8448`) is whitelisted in your firewall (even if you don't actually use/need federation).
 
 
 ## Authentication
@@ -81,12 +83,9 @@ What this playbook configures for your is some bare minimum Identity Server func
 
 A few variables can be toggled in this playbook to alter the ma1sd configuration that gets generated.
 
-Still, ma1sd can do much more.
-You can refer to the [ma1sd website](https://github.com/ma1uta/ma1sd) for more details and configuration options.
+Still, ma1sd can do much more. You can refer to the [ma1sd website](https://github.com/ma1uta/ma1sd) for more details and configuration options.
 
-To use a more custom configuration, you can define a `matrix_ma1sd_configuration_extension_yaml` string variable
-and put your configuration in it.
-To learn more about how to do this, refer to the information about `matrix_ma1sd_configuration_extension_yaml` in the [default variables file](../roles/custom/matrix-ma1sd/defaults/main.yml) of the ma1sd component.
+To use a more custom configuration, you can define a `matrix_ma1sd_configuration_extension_yaml` string variable and put your configuration in it. To learn more about how to do this, refer to the information about `matrix_ma1sd_configuration_extension_yaml` in the [default variables file](../roles/custom/matrix-ma1sd/defaults/main.yml) of the ma1sd component.
 
 ## Example: SMS verification
 
@@ -126,7 +125,7 @@ If email address validation emails sent by ma1sd are not reaching you, you shoul
 
 If you'd like additional logging information, temporarily enable verbose logging for ma1sd.
 
-Example configuration (`inventory/host_vars/matrix.DOMAIN/vars.yml`):
+Example configuration (`inventory/host_vars/matrix.example.com/vars.yml`):
 
 ```yaml
 matrix_ma1sd_verbose_logging: true

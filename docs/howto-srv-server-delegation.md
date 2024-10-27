@@ -1,6 +1,6 @@
 # Server Delegation via a DNS SRV record (advanced)
 
-**Reminder** : unless you are affected by the [Downsides of well-known-based Server Delegation](howto-server-delegation.md#downsides-of-well-known-based-server-delegation), we suggest you **stay on the simple/default path**: [Server Delegation](howto-server-delegation.md) by [configuring well-known files](configuring-well-known.md) at the base domain. 
+**Reminder** : unless you are affected by the [Downsides of well-known-based Server Delegation](howto-server-delegation.md#downsides-of-well-known-based-server-delegation), we suggest you **stay on the simple/default path**: [Server Delegation](howto-server-delegation.md) by [configuring well-known files](configuring-well-known.md) at the base domain.
 
 This guide is about configuring Server Delegation using DNS SRV records (for the [Traefik](https://doc.traefik.io/traefik/) webserver). This method has special requirements when it comes to SSL certificates, so various changes are required.
 
@@ -16,11 +16,18 @@ The up-to-date list can be accessed on [traefik's documentation](https://doc.tra
 
 ## The changes
 
+**Note**: the changes below instruct you how to do this for a basic Synapse installation. You will need to adapt the variable name and the content of the labels:
+
+- if you're using another homeserver implementation (e.g. [Conduit](./configuring-playbook-conduit.md) or [Dendrite](./configuring-playbook-dendrite.md))
+- if you're using [Synapse with workers enabled](./configuring-playbook-synapse.md#load-balancing-with-workers) (`matrix_synapse_workers_enabled: true`). In that case, it's actually the `matrix-synapse-reverse-proxy-companion` service which has Traefik labels attached
+
+Also, all instructions below are from an older version of the playbook and may not work anymore.
+
 ### Federation Endpoint
 
 ```yaml
-# To serve the federation from any domain, as long as the path match
-matrix_nginx_proxy_container_labels_traefik_proxy_matrix_federation_rule: PathPrefix(`/_matrix`)
+# To serve the federation from any domain, as long as the path matches
+matrix_synapse_container_labels_public_federation_api_traefik_rule: PathPrefix(`/_matrix/`)
 ```
 
 This is because with SRV federation, some servers / tools (one of which being the federation tester) try to access the federation API using the resolved IP address instead of the domain name (or they are not using SNI). This change will make Traefik route all traffic for which the path match this rule go to the federation endpoint.
@@ -29,13 +36,13 @@ This is because with SRV federation, some servers / tools (one of which being th
 
 Now that the federation endpoint is not bound to a domain anymore we need to explicitely tell Traefik to use a wildcard certificate in addition to one containing the base name.
 
-This is because the matrix specification expects the federation endpoint to be served using a certificate comatible with the base domain, however, the other resources on the endpoint still need a valid certificate to work.
+This is because the Matrix specification expects the federation endpoint to be served using a certificate compatible with the base domain, however, the other resources on the endpoint still need a valid certificate to work.
 
 ```yaml
 # To let Traefik know which domains' certificates to serve
-matrix_nginx_proxy_container_labels_additional_labels: |
-  traefik.http.routers.matrix-nginx-proxy-matrix-federation.tls.domains.main="example.com"
-  traefik.http.routers.matrix-nginx-proxy-matrix-federation.tls.domains.sans="*.example.com"
+matrix_synapse_container_labels_additional_labels: |
+  traefik.http.routers.matrix-synapse-federation-api.tls.domains.main="example.com"
+  traefik.http.routers.matrix-synapse-federation-api.tls.domains.sans="*.example.com"
 ```
 
 ### Configure the DNS-01 challenge for let's encrypt
@@ -51,29 +58,29 @@ We cannot just disable the default resolver as that would disable SSL in quite a
 
 ```yaml
 # 1. Add a new ACME configuration without having to disable the default one, since it would have a wide range of side effects
-devture_traefik_configuration_extension_yaml: |
+traefik_configuration_extension_yaml: |
   certificatesResolvers:
     dns:
       acme:
         # To use a staging endpoint for testing purposes, uncomment the line below.
         # caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-        email: {{ devture_traefik_config_certificatesResolvers_acme_email | to_json }}
+        email: {{ traefik_config_certificatesResolvers_acme_email | to_json }}
         dnsChallenge:
           provider: cloudflare
-          resolvers: 
+          resolvers:
             - "1.1.1.1:53"
             - "8.8.8.8:53"
-        storage: {{ devture_traefik_config_certificatesResolvers_acme_storage | to_json }}
+        storage: {{ traefik_config_certificatesResolvers_acme_storage | to_json }}
 
 # 2. Configure the environment variables needed by Rraefik to automate the ACME DNS Challenge (example for Cloudflare)
-devture_traefik_environment_variables: |
+traefik_environment_variables: |
   CF_API_EMAIL=redacted
   CF_ZONE_API_TOKEN=redacted
   CF_DNS_API_TOKEN=redacted
   LEGO_DISABLE_CNAME_SUPPORT=true
 
 # 3. Instruct the playbook to use the new ACME configuration
-devture_traefik_certResolver_primary: dns
+traefik_certResolver_primary: dns
 ```
 
 ## Adjust Coturn's configuration
@@ -98,31 +105,16 @@ matrix_coturn_container_additional_volumes: |
     (
       [
        {
-         'src': (matrix_ssl_config_dir_path + '/live/*.' + matrix_domain + '/fullchain.pem'),
-         'dst': '/fullchain.pem',
-         'options': 'ro',
-       },
-       {
-         'src': (matrix_ssl_config_dir_path + '/live/*.' + matrix_domain + '/privkey.pem'),
-         'dst': '/privkey.pem',
-         'options': 'ro',
-       },
-      ] if matrix_playbook_reverse_proxy_type in ['playbook-managed-nginx', 'other-nginx-non-container'] and matrix_coturn_tls_enabled else []
-    )
-    +
-    (
-      [
-       {
-         'src': (devture_traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/certificate.crt'),
+         'src': (traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/certificate.crt'),
          'dst': '/certificate.crt',
          'options': 'ro',
        },
        {
-         'src': (devture_traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/privatekey.key'),
+         'src': (traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/privatekey.key'),
          'dst': '/privatekey.key',
          'options': 'ro',
        },
-      ] if matrix_playbook_reverse_proxy_type in ['playbook-managed-traefik', 'other-traefik-container'] and devture_traefik_certs_dumper_enabled and matrix_coturn_tls_enabled else []
+      ] if matrix_playbook_reverse_proxy_type in ['playbook-managed-traefik', 'other-traefik-container'] and traefik_certs_dumper_enabled and matrix_coturn_tls_enabled else []
     )
   }}
 ```
@@ -132,36 +124,36 @@ matrix_coturn_container_additional_volumes: |
 ```yaml
 # Choosing the reverse proxy implementation
 matrix_playbook_reverse_proxy_type: playbook-managed-traefik
-devture_traefik_config_certificatesResolvers_acme_email: redacted@example.com
+traefik_config_certificatesResolvers_acme_email: redacted@example.com
 
-# To serve the federation from any domain, as long as the path match
-matrix_nginx_proxy_container_labels_traefik_proxy_matrix_federation_rule: PathPrefix(`/_matrix`)
+# To serve the federation from any domain, as long as the path matches
+matrix_synapse_container_labels_public_federation_api_traefik_rule: PathPrefix(`/_matrix/federation`)
 
 # To let Traefik know which domains' certificates to serve
-matrix_nginx_proxy_container_labels_additional_labels: |
-  traefik.http.routers.matrix-nginx-proxy-matrix-federation.tls.domains.main="example.com"
-  traefik.http.routers.matrix-nginx-proxy-matrix-federation.tls.domains.sans="*.example.com"
+matrix_synapse_container_labels_additional_labels: |
+  traefik.http.routers.matrix-synapse-federation-api.tls.domains.main="example.com"
+  traefik.http.routers.matrix-synapse-federation-api.tls.domains.sans="*.example.com"
 
 # Add a new ACME configuration without having to disable the default one, since it would have a wide range of side effects
-devture_traefik_configuration_extension_yaml: |
+traefik_configuration_extension_yaml: |
   certificatesResolvers:
     dns:
       acme:
         # To use a staging endpoint for testing purposes, uncomment the line below.
         # caServer: https://acme-staging-v02.api.letsencrypt.org/directory
-        email: {{ devture_traefik_config_certificatesResolvers_acme_email | to_json }}
+        email: {{ traefik_config_certificatesResolvers_acme_email | to_json }}
         dnsChallenge:
           provider: cloudflare
-          resolvers: 
+          resolvers:
             - "1.1.1.1:53"
             - "8.8.8.8:53"
-        storage: {{ devture_traefik_config_certificatesResolvers_acme_storage | to_json }}
+        storage: {{ traefik_config_certificatesResolvers_acme_storage | to_json }}
 
 # Instruct thep laybook to use the new ACME configuration
-devture_traefik_certResolver_primary: "dns"
+traefik_certResolver_primary: "dns"
 
 # Configure the environment variables needed by Traefik to automate the ACME DNS Challenge (example for Cloudflare)
-devture_traefik_environment_variables: |
+traefik_environment_variables: |
   CF_API_EMAIL=redacted
   CF_ZONE_API_TOKEN=redacted
   CF_DNS_API_TOKEN=redacted
@@ -176,31 +168,16 @@ matrix_coturn_container_additional_volumes: |
     (
       [
        {
-         'src': (matrix_ssl_config_dir_path + '/live/*.' + matrix_domain + '/fullchain.pem'),
-         'dst': '/fullchain.pem',
-         'options': 'ro',
-       },
-       {
-         'src': (matrix_ssl_config_dir_path + '/live/*.' + matrix_domain + '/privkey.pem'),
-         'dst': '/privkey.pem',
-         'options': 'ro',
-       },
-      ] if matrix_playbook_reverse_proxy_type in ['playbook-managed-nginx', 'other-nginx-non-container'] and matrix_coturn_tls_enabled else []
-    )
-    +
-    (
-      [
-       {
-         'src': (devture_traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/certificate.crt'),
+         'src': (traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/certificate.crt'),
          'dst': '/certificate.crt',
          'options': 'ro',
        },
        {
-         'src': (devture_traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/privatekey.key'),
+         'src': (traefik_certs_dumper_dumped_certificates_dir_path +  '/*.' + matrix_domain + '/privatekey.key'),
          'dst': '/privatekey.key',
          'options': 'ro',
        },
-      ] if matrix_playbook_reverse_proxy_type in ['playbook-managed-traefik', 'other-traefik-container'] and devture_traefik_certs_dumper_enabled and matrix_coturn_tls_enabled else []
+      ] if matrix_playbook_reverse_proxy_type in ['playbook-managed-traefik', 'other-traefik-container'] and traefik_certs_dumper_enabled and matrix_coturn_tls_enabled else []
     )
   }}
 ```

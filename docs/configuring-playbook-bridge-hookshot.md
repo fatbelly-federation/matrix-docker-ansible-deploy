@@ -6,7 +6,7 @@ Hookshot can bridge [Webhooks](https://en.wikipedia.org/wiki/Webhook) from softw
 
 See the project's [documentation](https://matrix-org.github.io/matrix-hookshot/latest/hookshot.html) to learn what it does in detail and why it might be useful to you.
 
-Note: the playbook also supports [matrix-appservice-webhooks](configuring-playbook-bridge-appservice-webhooks.md), which however is soon to be archived by its author and to be replaced by hookshot.
+**Note**: the playbook also supports [matrix-appservice-webhooks](configuring-playbook-bridge-appservice-webhooks.md), which however is soon to be archived by its author and to be replaced by hookshot.
 
 
 ## Setup Instructions
@@ -27,19 +27,19 @@ Finally, run the playbook (see [installing](installing.md)).
 
 You can enable [experimental encryption](https://matrix-org.github.io/matrix-hookshot/latest/advanced/encryption.html) for Hookshot by adding `matrix_hookshot_experimental_encryption_enabled: true` to your configuration (`vars.yml`) and [executing the playbook](installing.md) again.
 
-Should the crypto store be corrupted, you can reset it by executing this Ansible playbook with the tag `reset-hookshot-encryption` added, for example `ansible-playbook -i inventory/hosts setup.yml -K --tags=reset-hookshot-encryption`).
+Should the crypto store be corrupted, you can reset it by executing this Ansible playbook with the tag `reset-hookshot-encryption` added, for example `ansible-playbook -i inventory/hosts setup.yml -K --tags=reset-hookshot-encryption`.
 
 ## Usage
 
-Create a room and invite the Hookshot bot (`@hookshot:DOMAIN`) to it.
+Create a room and invite the Hookshot bot (`@hookshot:example.com`) to it.
 
 Make sure the bot is able to send state events (usually the Moderator power level in clients).
 
 Send a `!hookshot help` message to see a list of help commands.
 
-Refer to [Hookshot's documentation](https://matrix-org.github.io/matrix-hookshot/latest/usage.html) for more details about using the brige's various features.
+Refer to [Hookshot's documentation](https://matrix-org.github.io/matrix-hookshot/latest/usage.html) for more details about using the bridge's various features.
 
-**Important:** Note that the different listeners are bound to certain paths which might differ from those assumed by the hookshot documentation, see [URLs for bridges setup](#urls-for-bridges-setup) below.
+**Important**: Note that the different listeners are bound to certain paths which might differ from those assumed by the hookshot documentation, see [URLs for bridges setup](#urls-for-bridges-setup) below.
 
 
 ## More setup documentation
@@ -50,16 +50,17 @@ Unless indicated otherwise, the following endpoints are reachable on your `matri
 
 | listener | default path | variable | used as |
 |---|---|---|---|
-| webhooks | `/hookshot/webhooks/` | `matrix_hookshot_webhook_endpoint` | generics, GitHub "Webhook URL", GitLab "URL", etc. |
+| - | `/hookshot/webhooks/` | `matrix_hookshot_webhook_endpoint` | Webhook-prefix, which affects all webhook-related URLs below |
+| generic | `/hookshot/webhooks/webhook` | `matrix_hookshot_generic_endpoint` | Generic webhooks |
 | github oauth | `/hookshot/webhooks/oauth` | `matrix_hookshot_github_oauth_endpoint` | GitHub "Callback URL" |
 | jira oauth | `/hookshot/webhooks/jira/oauth` | `matrix_hookshot_jira_oauth_endpoint` | JIRA OAuth |
 | figma endpoint | `/hookshot/webhooks/figma/webhook` | `matrix_hookshot_figma_endpoint` | Figma |
 | provisioning | `/hookshot/v1/` | `matrix_hookshot_provisioning_endpoint` | Dimension [provisioning](#provisioning-api) |
 | appservice | `/hookshot/_matrix/app/` | `matrix_hookshot_appservice_endpoint` | Matrix server |
 | widgets | `/hookshot/widgetapi/` | `matrix_hookshot_widgets_endpoint` | Widgets |
-| metrics | `/metrics/hookshot` | `matrix_hookshot_metrics_enabled` and `matrix_hookshot_metrics_proxying_enabled`. Requires `/metrics/*` endpoints to also be enabled via `matrix_nginx_proxy_proxy_matrix_metrics_enabled` (see the `matrix-nginx-proxy` role). Read more in the [Metrics section](#metrics) below. | Prometheus |
+| metrics | `/metrics/hookshot` | `matrix_hookshot_metrics_enabled` and exposure enabled via `matrix_hookshot_metrics_proxying_enabled` or `matrix_metrics_exposure_enabled`. Read more in the [Metrics section](#metrics) below. | Prometheus |
 
-See also `matrix_hookshot_matrix_nginx_proxy_configuration` in [init.yml](/roles/custom/matrix-bridge-hookshot/tasks/inject_into_nginx_proxy.yml).
+Also see the various `matrix_hookshot_container_labels_*` variables in [default/main.yml](/roles/custom/matrix-bridge-hookshot/default/main.yml), which expose URLs publicly.
 
 The different listeners are also reachable *internally* in the docker-network via the container's name (configured by `matrix_hookshot_container_url`) and on different ports (e.g. `matrix_hookshot_appservice_port`). Read [main.yml](/roles/custom/matrix-bridge-hookshot/defaults/main.yml) in detail for more info.
 
@@ -91,10 +92,12 @@ Metrics are **only enabled by default** if the builtin [Prometheus](configuring-
 
 To explicitly enable metrics, use `matrix_hookshot_metrics_enabled: true`. This only exposes metrics over the container network, however.
 
-**To collect metrics from an external Prometheus server**, besides enabling metrics as described above, you will also need to:
+**To collect metrics from an external Prometheus server**, besides enabling metrics as described above, you will also need to enable metrics exposure on `https://matrix.example.com/metrics/hookshot` by:
 
-- enable the `https://matrix.DOMAIN/metrics/*` endpoints on `matrix.DOMAIN` using `matrix_nginx_proxy_proxy_matrix_metrics_enabled: true` (see the `matrix-nginx-role` or [the Prometheus and Grafana docs](configuring-playbook-prometheus-grafana.md) for enabling this feature)
-- expose the Hookshot metrics under `https://matrix.DOMAIN/metrics/hookshot` by setting `matrix_hookshot_metrics_proxying_enabled: true`
+- either enabling metrics exposure for Hookshot via `matrix_hookshot_metrics_proxying_enabled: true`
+- or enabling metrics exposure for all services via `matrix_metrics_exposure_enabled: true`
+
+Whichever one you go with, by default metrics are exposed publicly **without** password-protection. See [the Prometheus and Grafana docs](configuring-playbook-prometheus-grafana.md) for details about password-protection for metrics.
 
 ### Collision with matrix-appservice-webhooks
 

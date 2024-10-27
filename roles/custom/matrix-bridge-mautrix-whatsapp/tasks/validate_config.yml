@@ -7,6 +7,7 @@
   when: "item.when | bool and vars[item.name] == ''"
   with_items:
     - {'name': 'matrix_mautrix_whatsapp_appservice_token', when: true}
+    - {'name': 'matrix_mautrix_whatsapp_homeserver_address', when: true}
     - {'name': 'matrix_mautrix_whatsapp_homeserver_token', when: true}
     - {'name': 'matrix_mautrix_whatsapp_database_hostname', when: "{{ matrix_mautrix_whatsapp_database_engine == 'postgres' }}"}
 
@@ -18,3 +19,8 @@
   when: "item.old in vars"
   with_items:
     - {'old': 'matrix_mautrix_whatsapp_log_level', 'new': 'matrix_mautrix_whatsapp_logging_level'}
+    - {'old': 'matrix_mautrix_whatsapp_login_shared_secret', 'new': '<removed>'}
+    - {'old': 'matrix_mautrix_whatsapp_bridge_login_shared_secret_map', 'new': '<superseded by matrix_mautrix_whatsapp_double_puppet_secrets>'}
+    - {'old': 'matrix_mautrix_whatsapp_bridge_double_puppet_server_map', 'new': '<removed>'}
+    - {'old': 'matrix_mautrix_whatsapp_bridge_allow_user_invite', 'new': '<removed>'}
+    - {'old': 'matrix_mautrix_whatsapp_bridge_mute_bridging', 'new': '<removed>'}
