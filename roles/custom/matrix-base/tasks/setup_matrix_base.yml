@@ -11,11 +11,6 @@
     - "{{ matrix_base_data_path }}"
     - "{{ matrix_bin_path }}"
 
-- name: Ensure Matrix network is created in Docker
-  community.docker.docker_network:
-    name: "{{ matrix_docker_network }}"
-    driver: bridge
-
 # ref: https://github.com/ansible/ansible/issues/56243#issuecomment-562657109
 - name: Ensure file already exists at template dest to work around 'invalid selinux context' issue
   ansible.builtin.file:
