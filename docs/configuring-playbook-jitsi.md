@@ -1,11 +1,10 @@
-# Jitsi
+# Setting up the Jitsi video-conferencing platform (optional)
 
-The playbook can install the [Jitsi](https://jitsi.org/) video-conferencing platform and integrate it with [Element](configuring-playbook-client-element.md).
+The playbook can install the [Jitsi](https://jitsi.org/) video-conferencing platform and integrate it with Element clients ([Element Web](configuring-playbook-client-element-web.md)/Desktop, Android and iOS).
 
 Jitsi installation is **not enabled by default**, because it's not a core component of Matrix services.
 
 The setup done by the playbook is very similar to [docker-jitsi-meet](https://github.com/jitsi/docker-jitsi-meet). You can refer to the documentation there for many of the options here.
-
 
 ## Prerequisites
 
@@ -13,7 +12,6 @@ You may need to open the following ports to your server:
 
 - `4443/tcp` - RTP media fallback over TCP
 - `10000/udp` - RTP media over UDP. Depending on your firewall/NAT setup, incoming RTP packets on port `10000` may have the external IP of your firewall as destination address, due to the usage of STUN in JVB (see [`jitsi_jvb_stun_servers`](https://github.com/mother-of-all-self-hosting/ansible-role-jitsi/blob/main/defaults/main.yml)).
-
 
 ## Adjusting the playbook configuration
 
@@ -42,11 +40,11 @@ Once you've decided on the domain and path, **you may need to adjust your DNS** 
 
 By default, you will need to create a CNAME record for `jitsi`. See [Configuring DNS](configuring-dns.md) for details about DNS changes.
 
-## (Optional) Configure Jitsi authentication and guests mode
+## Configure Jitsi authentication and guests mode (optional)
 
 By default the Jitsi Meet instance does not require any kind of login and is open to use for anyone without registration.
 
-If you're fine with such an open Jitsi instance, please skip to [Apply changes](#apply-changes).
+If you're fine with such an open Jitsi instance, please skip to [Installing](#installing).
 
 If you would like to control who is allowed to open meetings on your new Jitsi instance, then please follow the following steps to enable Jitsi's authentication and optionally guests mode.
 
@@ -70,7 +68,7 @@ jitsi_prosody_auth_internal_accounts:
     password: "another-password"
 ```
 
-**Caution**: Accounts added here and subsequently removed will not be automatically removed from the Prosody server until user account cleaning is integrated into the playbook.
+⚠️ **Warning**: Accounts added here and subsequently removed will not be automatically removed from the Prosody server until user account cleaning is integrated into the playbook.
 
 **If you get an error** like this: "Error: Account creation/modification not supported.", it's likely that you had previously installed Jitsi without auth/guest support. In such a case, you should look into [Rebuilding your Jitsi installation](#rebuilding-your-jitsi-installation).
 
@@ -114,8 +112,7 @@ jitsi_ldap_start_tls: false
 
 For more information refer to the [docker-jitsi-meet](https://github.com/jitsi/docker-jitsi-meet#authentication-using-ldap) and the [saslauthd `LDAP_SASLAUTHD`](https://github.com/winlibs/cyrus-sasl/blob/master/saslauthd/LDAP_SASLAUTHD) documentation.
 
-
-## (Optional) Making your Jitsi server work on a LAN
+## Making your Jitsi server work on a LAN (optional)
 
 By default the Jitsi Meet instance does not work with a client in LAN (Local Area Network), even if others are connected from WAN. There are no video and audio. In the case of WAN to WAN everything is ok.
 
@@ -130,7 +127,7 @@ jitsi_jvb_container_extra_arguments:
   - '--env "JVB_ADVERTISE_IPS=<Local IP address of the host>"'
 ```
 
-## (Optional) Fine tune Jitsi
+## Fine tune Jitsi (optional)
 
 Sample **additional** `inventory/host_vars/matrix.example.com/vars.yml` configuration to save up resources (explained below):
 
@@ -155,7 +152,7 @@ You may want to **limit the number of video feeds forwarded to each client**, to
 
 You may want to **limit the maximum video resolution**, to save up resources on both server and clients.
 
-## (Optional) Specify a Max number of participants on a Jitsi conference
+## Specify a Max number of participants on a Jitsi conference (optional)
 
 The playbook allows a user to set a max number of participants allowed to join a Jitsi conference. By default there is no limit.
 
@@ -165,25 +162,26 @@ In order to set the max number of participants use the following **additional** 
 jitsi_prosody_max_participants: 4 # example value
 ```
 
-## (Optional) Additional JVBs
+## Additional JVBs (optional)
 
 By default, a single JVB ([Jitsi VideoBridge](https://github.com/jitsi/jitsi-videobridge)) is deployed on the same host as the Matrix server. To allow more video-conferences to happen at the same time, you may need to provision additional JVB services on other hosts.
 
 There is an ansible playbook that can be run with the following tag: `ansible-playbook -i inventory/hosts --limit jitsi_jvb_servers jitsi_jvb.yml --tags=common,setup-additional-jitsi-jvb,start`
 
 For this role to work you will need an additional section in the ansible hosts file with the details of the JVB hosts, for example:
-```
+
+```INI
 [jitsi_jvb_servers]
 <your jvb hosts> ansible_host=<ip address of the jvb host>
 ```
 
 Each JVB will require a server ID to be set so that it can be uniquely identified and this allows Jitsi to keep track of which conferences are on which JVB. The server ID is set with the variable `jitsi_jvb_server_id` which ends up as the JVB_WS_SERVER_ID environment variables in the JVB docker container. This variable can be set via the host file, a parameter to the ansible command or in the `vars.yaml` for the host which will have the additional JVB. For example:
 
-``` yaml
+```yaml
 jitsi_jvb_server_id: 'jvb-2'
 ```
 
-``` INI
+```INI
 [jitsi_jvb_servers]
 jvb-2.example.com ansible_host=192.168.0.2 jitsi_jvb_server_id=jvb-2
 jvb-3.example.com ansible_host=192.168.0.3 jitsi_jvb_server_id=jvb-2
@@ -255,9 +253,9 @@ traefik_provider_configuration_extension_yaml: |
      {% endfor %}
 ```
 
-## (Optional) Enable Gravatar
+## Enable Gravatar (optional)
 
-In the default Jisti Meet configuration, gravatar.com is enabled as an avatar service. This results in third party request leaking data to gravatar. Since element already sends the url of configured Matrix avatars to Jitsi, we disabled gravatar.
+In the default Jisti Meet configuration, gravatar.com is enabled as an avatar service. This results in third party request leaking data to gravatar. Since Element clients already send the url of configured Matrix avatars to Jitsi, we disabled gravatar.
 
 To enable Gravatar set:
 
@@ -265,28 +263,32 @@ To enable Gravatar set:
 jitsi_disable_gravatar: false
 ```
 
-**Beware**: This leaks information to a third party, namely the Gravatar-Service (unless configured otherwise: gravatar.com). Besides metadata, this includes the Matrix user_id and possibly the room identifier (via `referrer` header).
+⚠️ **Warning**: This leaks information to a third party, namely the Gravatar-Service (unless configured otherwise: gravatar.com). Besides metadata, this includes the Matrix user_id and possibly the room identifier (via `referrer` header).
 
 ## Installing
 
-After configuring the playbook and potentially [adjusting your DNS records](#adjusting-dns-records), run the [installation](installing.md) command:
+After configuring the playbook and potentially [adjusting your DNS records](#adjusting-dns-records), run the playbook with [playbook tags](playbook-tags.md) as below:
 
-```
+<!-- NOTE: let this conservative command run (instead of install-all) to make it clear that failure of the command means something is clearly broken. -->
+```sh
 ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start
 ```
+
+The shortcut commands with the [`just` program](just.md) are also available: `just install-all` or `just setup-all`
+
+`just install-all` is useful for maintaining your setup quickly ([2x-5x faster](../CHANGELOG.md#2x-5x-performance-improvements-in-playbook-runtime) than `just setup-all`) when its components remain unchanged. If you adjust your `vars.yml` to remove other components, you'd need to run `just setup-all`, or these components will still remain installed. Note these shortcuts run the `ensure-matrix-users-created` tag too.
 
 ## Usage
 
 You can use the self-hosted Jitsi server in multiple ways:
 
-- **by adding a widget to a room via Element** (the one configured by the playbook at `https://element.example.com`). Just start a voice or a video call in a room containing more than 2 members and that would create a Jitsi widget which utilizes your self-hosted Jitsi server.
+- **by adding a widget to a room via Element Web** (the one configured by the playbook at `https://element.example.com`). Just start a voice or a video call in a room containing more than 2 members and that would create a Jitsi widget which utilizes your self-hosted Jitsi server.
 
 - **by adding a widget to a room via the Dimension integration manager**. You'll have to point the widget to your own Jitsi server manually. See our [Dimension integration manager](./configuring-playbook-dimension.md) documentation page for more details. Naturally, Dimension would need to be installed first (the playbook doesn't install it by default).
 
 - **directly (without any Matrix integration)**. Just go to `https://jitsi.example.com`
 
 **Note**: Element apps on mobile devices currently [don't support joining meetings on a self-hosted Jitsi server](https://github.com/element-hq/riot-web/blob/601816862f7d84ac47547891bd53effa73d32957/docs/jitsi.md#mobile-app-support).
-
 
 ## Troubleshooting
 

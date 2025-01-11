@@ -1,9 +1,8 @@
-# TURN server
+# Adjusting TURN server configuration (optional, advanced)
 
 The playbook installs a [Coturn](https://github.com/coturn/coturn) TURN server by default, so that clients can make audio/video calls even from [NAT](https://en.wikipedia.org/wiki/Network_address_translation)-ed networks.
 
 By default, the Synapse chat server is configured, so that it points to the Coturn TURN server installed by the playbook.
-
 
 ## Disabling Coturn
 
@@ -40,14 +39,13 @@ The playbook uses the [`auth-secret` authentication method](https://github.com/c
 
 To do so, add this override to your configuration:
 
-```yml
+```yaml
 matrix_coturn_authentication_method: lt-cred-mech
 ```
 
 Regardless of the selected authentication method, the playbook generates secrets automatically and passes them to the homeserver and Coturn.
 
 If you're using [Jitsi](./configuring-playbook-jitsi.md), note that switching to `lt-cred-mech` will remove the integration between Jitsi and your own Coturn server, because Jitsi only seems to support the `auth-secret` authentication method.
-
 
 ## Using your own external Coturn server
 

@@ -4,7 +4,6 @@ If you'd like to store Synapse's content repository (`media_store`) files on Ama
 
 An alternative (which has worse performance) is to use [Goofys to mount the S3 store to the local filesystem](configuring-playbook-s3-goofys.md).
 
-
 ## How it works?
 
 Summarized writings here are inspired by [this article](https://quentin.dufour.io/blog/2021-09-14/matrix-synapse-s3-storage/).
@@ -22,8 +21,7 @@ You can run some scripts to delete the local files once in a while (which we do 
 
 While you will need some local disk space around, it's only to accommodate usage, etc., and won't grow as large as your S3 store.
 
-
-## Installing
+## Adjusting the playbook configuration
 
 After [creating the S3 bucket and configuring it](configuring-playbook-s3.md#bucket-creation-and-security-configuration), you can proceed to configure `s3-storage-provider` in your configuration file (`inventory/host_vars/matrix.example.com/vars.yml`):
 
@@ -56,7 +54,6 @@ If you have existing files in Synapse's media repository (`/matrix/synapse/media
 - at some point (and periodically in the future), you can delete local files which have been uploaded to the S3 store already
 
 Regardless of whether you need to [Migrate your existing files to the S3 store](#migrating-your-existing-media-files-to-the-s3-store) or not, make sure you've familiarized yourself with [How it works?](#how-it-works) above and [Periodically cleaning up the local filesystem](#periodically-cleaning-up-the-local-filesystem) below.
-
 
 ## Migrating your existing media files to the S3 store
 
