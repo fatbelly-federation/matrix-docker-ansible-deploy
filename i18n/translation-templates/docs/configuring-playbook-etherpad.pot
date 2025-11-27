@@ -1,5 +1,5 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) 2018-2024, Slavi Pantaleev, Aine Etke, MDAD community members
+# Copyright (C) 2018-2025, Slavi Pantaleev, Aine Etke, MDAD community members
 # This file is distributed under the same license as the matrix-docker-ansible-deploy package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: matrix-docker-ansible-deploy \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-12-20 07:23+0200\n"
+"POT-Creation-Date: 2025-11-06 23:09+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,154 +16,146 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: ../../../docs/configuring-playbook-etherpad.md:1
+#: ../../../docs/configuring-playbook-etherpad.md:13
 msgid "Setting up Etherpad (optional)"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:3
-msgid "[Etherpad](https://etherpad.org) is an open source collaborative text editor that can be embedded in a Matrix chat room using the [Dimension integration manager](https://dimension.t2bot.io) or used as standalone web app."
+#: ../../../docs/configuring-playbook-etherpad.md:15
+msgid "The playbook can install and configure [Etherpad](https://etherpad.org) for you."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:5
-msgid "When enabled together with the Jitsi audio/video conferencing system (see [our docs on Jitsi](configuring-playbook-jitsi.md)), it will be made available as an option during the conferences."
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:7
-msgid "Adjusting the playbook configuration"
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:9
-msgid "To enable Etherpad, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:"
+#: ../../../docs/configuring-playbook-etherpad.md:17
+msgid "Etherpad is an open source collaborative text editor. It can not only be integrated with Element clients ([Element Web](configuring-playbook-client-element-web.md)/Desktop, Android and iOS) as a widget, but also be used as standalone web app."
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:19
-msgid "Adjusting the Etherpad URL"
+msgid "When enabled together with the Jitsi video-conferencing platform (see [our docs on Jitsi](configuring-playbook-jitsi.md)), it will be made available as an option during the conferences."
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:21
-msgid "By default, this playbook installs Etherpad on the `etherpad.` subdomain (`etherpad.example.com`) and requires you to [adjust your DNS records](#adjusting-dns-records)."
+msgid "The [Ansible role for Etherpad](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad) is developed and maintained by [the MASH (mother-of-all-self-hosting) project](https://github.com/mother-of-all-self-hosting). For details about configuring Etherpad, you can check them via:"
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:23
-msgid "By tweaking the `etherpad_hostname` and `etherpad_path_prefix` variables, you can easily make the service available at a **different hostname and/or path** than the default one."
+msgid "🌐 [the role's documentation at the MASH project](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad/blob/main/docs/configuring-etherpad.md) online"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:25
-msgid "Example additional configuration for your `inventory/host_vars/matrix.example.com/vars.yml` file:"
+#: ../../../docs/configuring-playbook-etherpad.md:24
+msgid "📁 `roles/galaxy/etherpad/docs/configuring-etherpad.md` locally, if you have [fetched the Ansible roles](installing.md#update-ansible-roles)"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:36
+#: ../../../docs/configuring-playbook-etherpad.md:26
 msgid "Adjusting DNS records"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:38
-msgid "Once you've decided on the domain and path, **you may need to adjust your DNS** records to point the Etherpad domain to the Matrix server."
+#: ../../../docs/configuring-playbook-etherpad.md:28
+msgid "By default, this playbook installs Etherpad on the `etherpad.` subdomain (`etherpad.example.com`) and requires you to create a CNAME record for `etherpad`, which targets `matrix.example.com`."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:40
-msgid "By default, you will need to create a CNAME record for `etherpad`. See [Configuring DNS](configuring-dns.md) for details about DNS changes."
+#: ../../../docs/configuring-playbook-etherpad.md:30
+msgid "When setting, replace `example.com` with your own."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:42
-msgid "If you've decided to reuse the `matrix.` domain, you won't need to do any extra DNS configuration."
+#: ../../../docs/configuring-playbook-etherpad.md:32
+msgid "Adjusting the playbook configuration"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:44
-msgid "Installing"
+#: ../../../docs/configuring-playbook-etherpad.md:34
+msgid "To enable Etherpad, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:46
-msgid "After configuring the playbook and potentially [adjusting your DNS records](#adjusting-dns-records), run the playbook with [playbook tags](playbook-tags.md) as below:"
+#: ../../../docs/configuring-playbook-etherpad.md:52
+msgid "As the most of the necessary settings for the role have been taken care of by the playbook, you can enable Etherpad on your Matrix server with this minimum configuration."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:53
-msgid "**Notes**:"
+#: ../../../docs/configuring-playbook-etherpad.md:54
+msgid "See the role's documentation for details about configuring Etherpad per your preference (such as [the name of the instance](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad/blob/main/docs/configuring-etherpad.md#set-the-name-of-the-instance-optional) and [the default pad text](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad/blob/main/docs/configuring-etherpad.md#set-the-default-text-optional))."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:55
-msgid "The `ensure-matrix-users-created` playbook tag makes the playbook automatically create the Etherpad admin user (`etherpad_admin_username`)."
+#: ../../../docs/configuring-playbook-etherpad.md:56
+msgid "Create admin user (optional)"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:57
-msgid "The shortcut commands with the [`just` program](just.md) are also available: `just install-all` or `just setup-all`"
+#: ../../../docs/configuring-playbook-etherpad.md:58
+msgid "You probably might want to enable authentication to disallow anonymous access to your Etherpad."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:59
-msgid "`just install-all` is useful for maintaining your setup quickly ([2x-5x faster](../CHANGELOG.md#2x-5x-performance-improvements-in-playbook-runtime) than `just setup-all`) when its components remain unchanged. If you adjust your `vars.yml` to remove other components, you'd need to run `just setup-all`, or these components will still remain installed."
+#: ../../../docs/configuring-playbook-etherpad.md:60
+msgid "It is possible to enable HTTP basic authentication by **creating an admin user** with `etherpad_admin_username` and `etherpad_admin_password` variables. The admin user account is also used by plugins for authentication and authorization."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:61
-msgid "If you change the Etherpad admin user's password (`etherpad_admin_password` in your `vars.yml` file) subsequently, the admin user's credentials on the homeserver won't be updated automatically. If you'd like to change the admin user's password, use a tool like [synapse-admin](configuring-playbook-synapse-admin.md) to change it, and then update `etherpad_admin_password` to let the admin user know its new password."
+#: ../../../docs/configuring-playbook-etherpad.md:62
+msgid "See [this section](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad/blob/main/docs/configuring-etherpad.md#create-admin-user-optional) on the role's documentation for details about how to create the admin user."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:63
-msgid "Usage"
+#: ../../../docs/configuring-playbook-etherpad.md:64
+msgid "Adjusting the Etherpad URL (optional)"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:65
-msgid "The Etherpad UI should be available at `https://etherpad.example.com`, while the admin UI (if enabled) should then be available at `https://etherpad.example.com/admin`."
+#: ../../../docs/configuring-playbook-etherpad.md:66
+msgid "By tweaking the `etherpad_hostname` and `etherpad_path_prefix` variables, you can easily make the service available at a **different hostname and/or path** than the default one."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:67
-msgid "If you've [decided on another hostname or path-prefix](#adjusting-the-etherpad-url) (e.g. `https://matrix.example.com/etherpad`), adjust these URLs accordingly before usage."
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:69
-msgid "Managing / Deleting old pads"
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:71
-msgid "If you want to manage and remove old unused pads from Etherpad, you will first need to able Admin access as described above."
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:73
-msgid "Then from the plugin manager page (`https://etherpad.example.com/admin/plugins`, install the `adminpads2` plugin. Once installed, you should have a \"Manage pads\" section in the Admin web-UI."
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:75
-msgid "How to use Etherpad widgets without an integration manager (like Dimension)"
-msgstr ""
-
-#: ../../../docs/configuring-playbook-etherpad.md:77
-msgid "This is how it works in Element Web, it might work quite similar with other clients:"
+#: ../../../docs/configuring-playbook-etherpad.md:68
+msgid "Example additional configuration for your `vars.yml` file:"
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:79
-msgid "To integrate a standalone Etherpad in a room, create your pad by visiting `https://etherpad.example.com`. When the pad opens, copy the URL and send a command like this to the room: `/addwidget URL`. You will then find your integrated Etherpad within the right sidebar in the `Widgets` section."
+msgid "After changing the domain, **you may need to adjust your DNS** records to point the Etherpad domain to the Matrix server."
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:81
-msgid "Set Dimension default to the self-hosted Etherpad (optional)"
+msgid "If you've decided to reuse the `matrix.` domain, you won't need to do any extra DNS configuration."
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:83
-msgid "If you decided to install [Dimension integration manager](configuring-playbook-dimension.md) alongside Etherpad, the Dimension administrator users can configure the default URL template."
+msgid "Installing"
 msgstr ""
 
 #: ../../../docs/configuring-playbook-etherpad.md:85
-msgid "The Dimension configuration menu can be accessed with the sprocket icon as you begin to add a widget to a room in Element Web. There you will find the Etherpad Widget Configuration action beneath the _Widgets_ tab."
+msgid "After configuring the playbook and potentially [adjusting your DNS records](#adjusting-dns-records), run the playbook with [playbook tags](playbook-tags.md) as below:"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:87
-msgid "Removing the integrated Etherpad chat"
+#: ../../../docs/configuring-playbook-etherpad.md:92
+msgid "The shortcut commands with the [`just` program](just.md) are also available: `just install-all` or `just setup-all`"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:89
-msgid "If you wish to disable the Etherpad chat button, you can do it by appending `?showChat=false` to the end of the pad URL, or the template."
+#: ../../../docs/configuring-playbook-etherpad.md:94
+msgid "`just install-all` is useful for maintaining your setup quickly ([2x-5x faster](../CHANGELOG.md#2x-5x-performance-improvements-in-playbook-runtime) than `just setup-all`) when its components remain unchanged. If you adjust your `vars.yml` to remove other components, you'd need to run `just setup-all`, or these components will still remain installed. Note these shortcuts run the `ensure-matrix-users-created` tag too."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:91
-msgid "Example: `https://etherpad.example.com/p/$roomId_$padName?showChat=false`"
+#: ../../../docs/configuring-playbook-etherpad.md:96
+msgid "Usage"
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:93
-msgid "Known issues"
+#: ../../../docs/configuring-playbook-etherpad.md:98
+msgid "By default, the Etherpad UI should be available at `https://etherpad.example.com`, while the admin UI (if enabled) should then be available at `https://etherpad.example.com/admin`."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:95
-msgid "If your Etherpad widget fails to load, this might be due to Dimension generating a Pad name so long, the Etherpad app rejects it."
+#: ../../../docs/configuring-playbook-etherpad.md:100
+msgid "If you've [decided on another hostname or path-prefix](#adjusting-the-etherpad-url-optional) (e.g. `https://matrix.example.com/etherpad`), adjust these URLs accordingly before using it."
 msgstr ""
 
-#: ../../../docs/configuring-playbook-etherpad.md:97
-msgid "`$roomId_$padName` can end up being longer than 50 characters. You can avoid having this problem by altering the template so it only contains the three word random identifier `$padName`."
+#: ../../../docs/configuring-playbook-etherpad.md:102
+msgid "💡 For more information about usage, take a look at [this section](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad/blob/main/docs/configuring-etherpad.md#usage) on the role's documentation."
+msgstr ""
+
+#: ../../../docs/configuring-playbook-etherpad.md:104
+msgid "Integrating a Etherpad widget in a room"
+msgstr ""
+
+#: ../../../docs/configuring-playbook-etherpad.md:106
+msgid "**Note**: this is how it works in Element Web. It might work quite similar with other clients:"
+msgstr ""
+
+#: ../../../docs/configuring-playbook-etherpad.md:108
+msgid "To integrate a standalone Etherpad in a room, create your pad by visiting `https://etherpad.example.com`. When the pad opens, copy the URL and send a command like this to the room: `/addwidget URL`. You will then find your integrated Etherpad within the right sidebar in the `Widgets` section."
+msgstr ""
+
+#: ../../../docs/configuring-playbook-etherpad.md:110
+msgid "Troubleshooting"
+msgstr ""
+
+#: ../../../docs/configuring-playbook-etherpad.md:112
+msgid "See [this section](https://github.com/mother-of-all-self-hosting/ansible-role-etherpad/blob/main/docs/configuring-etherpad.md#troubleshooting) on the role's documentation for details."
 msgstr ""

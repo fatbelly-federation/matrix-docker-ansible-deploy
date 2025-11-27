@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 - 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2024 MDAD project contributors
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Setting up Draupnir for All/D4A (optional)
 
 The playbook can install and configure the [Draupnir](https://github.com/the-draupnir-project/Draupnir) moderation tool for you in appservice mode.
@@ -24,19 +31,12 @@ The playbook does not create a management room for your Main Draupnir. You **nee
 
 Note that the room must be unencrypted.
 
-<!-- TODO: enable Pantalaimon as configuring-playbook-bot-draupnir.md -->
-
-The management room has to be given an alias and be public when you are setting up the bot for the first time as the bot does not differentiate between invites and invites to the management room.
+The management room has to be given an alias, and your bot has to be invited to the room.
 
 This management room is used to control who has access to your D4A deployment. The room stores this data inside of the control room state so your bot must have sufficient powerlevel to send custom state events. This is default 50 or moderator as Element clients call this powerlevel.
 
-As noted in the Draupnir install instructions the control room is sensitive. **Anyone in this room can control the bot so it is important that you only invite trusted users to this room.**
-
-### Set an alias to the management room
-
-Next, set an alias to the management room.
-
-This alias can be anything you want. However, for increased security during the setup phase, it is recommended to make this alias be a random string. When it has been locked down after setup phase, you can give your room a secondary human readable alias.
+> [!WARNING]
+> Anyone in this room can control the bot so it is important that you only invite trusted users to this room.
 
 ## Adjusting the playbook configuration
 
@@ -45,24 +45,28 @@ Add the following configuration to your `inventory/host_vars/matrix.example.com/
 ```yaml
 matrix_appservice_draupnir_for_all_enabled: true
 
-matrix_appservice_draupnir_for_all_master_control_room_alias: "MANAGEMENT_ROOM_ALIAS_HERE"
+matrix_appservice_draupnir_for_all_config_adminRoom: "MANAGEMENT_ROOM_ALIAS_HERE"
 ```
 
 ### Extending the configuration
 
-You can configure additional options by adding the `matrix_appservice_draupnir_for_all_extension_yaml` variable.
+There are some additional things you may wish to configure about the component.
 
-For example, to change Draupnir's `protectAllJoinedRooms` option to `true`, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+Take a look at:
+
+- `roles/custom/matrix-appservice-draupnir-for-all/defaults/main.yml` for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `matrix_appservice_draupnir_for_all_configuration_extension_yaml` variable
+
+For example, to change Draupnir's `protectAllJoinedRooms` option to `true`, add the following configuration to your `vars.yml` file:
 
 ```yaml
-matrix_appservice_draupnir_for_all_extension_yaml: |
+matrix_appservice_draupnir_for_all_configuration_extension_yaml: |
   # Your custom YAML configuration goes here.
-  # This configuration extends the default starting configuration (`matrix_appservice_draupnir_for_all_yaml`).
+  # This configuration extends the default starting configuration (`matrix_appservice_draupnir_for_all_configuration_yaml`).
   #
   # You can override individual variables from the default configuration, or introduce new ones.
   #
   # If you need something more special, you can take full control by
-  # completely redefining `matrix_appservice_draupnir_for_all_yaml`.
+  # completely redefining `matrix_appservice_draupnir_for_all_configuration_yaml`.
   protectAllJoinedRooms: true
 ```
 
@@ -80,12 +84,10 @@ After configuring the playbook, run it with [playbook tags](playbook-tags.md) as
 
 <!-- NOTE: let this conservative command run (instead of install-all) to make it clear that failure of the command means something is clearly broken. -->
 ```sh
-ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,ensure-matrix-users-created,start
+ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start
 ```
 
 **Notes**:
-
-- The `ensure-matrix-users-created` playbook tag makes the playbook automatically create the bot's user account.
 
 - The shortcut commands with the [`just` program](just.md) are also available: `just install-all` or `just setup-all`
 
@@ -93,17 +95,17 @@ ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,ensure-matrix-use
 
 ## Usage
 
-If you made it through all the steps above and your main control room was joined by a user called `@draupnir-main:example.com` you have succesfully installed Draupnir for All and can now start using it.
+If you made it through all the steps above and your main control room was joined by a user called `@draupnir-main:example.com` you have successfully installed Draupnir for All and can now start using it.
 
 The installation of Draupnir for all in this playbook is very much Alpha quality. Usage-wise, Draupnir for all is almost identical to Draupnir bot mode.
 
 ### Granting Users the ability to use D4A
 
-Draupnir for all includes several security measures like that it only allows users that are on its allow list to ask for a bot. To add a user to this list we have 2 primary options. Using the chat to tell Draupnir to do this for us or if you want to automatically do it by sending `m.policy.rule.user` events that target the subject you want to allow provisioning for with the `org.matrix.mjolnir.allow` recomendation. Using the chat is recomended.
+Draupnir for all includes several security measures like that it only allows users that are on its allow list to ask for a bot. To add a user to this list we have 2 primary options. Using the chat to tell Draupnir to do this for us or if you want to automatically do it by sending `m.policy.rule.user` events that target the subject you want to allow provisioning for with the `org.matrix.mjolnir.allow` recommendation. Using the chat is recommended.
 
 The bot requires a powerlevel of 50 in the management room to control who is allowed to use the bot. The bot does currently not say anything if this is true or false. (This is considered a bug and is documented in issue [#297](https://github.com/the-draupnir-project/Draupnir/issues/297))
 
-To allow users or whole homeservers you type /plain @draupnir-main:example.com allow `target` and target can be either a MXID or a wildcard like `@*:example.com` to allow all users on example.com to register. We use /plain to force the client to not attempt to mess with this command as it can break Wildcard commands especially.
+To allow users or whole homeservers you type /plain !admin allow `target` and target can be either a MXID or a wildcard like `@*:example.com` to allow all users on example.com to register. We use /plain to force the client to not attempt to mess with this command as it can break Wildcard commands especially.
 
 ### How to provision a D4A once you are allowed to
 
