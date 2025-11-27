@@ -1,3 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2022 - 2024 MDAD project contributors
+SPDX-FileCopyrightText: 2022 - 2025 Slavi Pantaleev
+SPDX-FileCopyrightText: 2023 Nikita Chernyi
+SPDX-FileCopyrightText: 2024 - 2025 Suguru Hirahara
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # Setting up a Generic Mautrix Bridge (optional)
 
 The playbook can install and configure various [mautrix](https://github.com/mautrix) bridges (twitter, discord, signal, googlechat, etc.), as well as many other (non-mautrix) bridges. This is a common guide for configuring mautrix bridges.
@@ -15,7 +24,7 @@ To enable the bridge, add the following configuration to your `inventory/host_va
 matrix_mautrix_SERVICENAME_enabled: true
 ```
 
-**Note**: for bridging to Meta's Messenger or Instagram, you would need to add `meta` with an underscore symbol (`_`) or hyphen (`-`) based on the context as prefix to each `SERVICENAME`; add `_` to variables (as in `matrix_mautrix_meta_messenger_configuration_extension_yaml` for example) and `-` to paths of the configuration files (as in `roles/custom/matrix-bridge-mautrix-meta-messenger/templates/config.yaml.j2`), respectively. **`matrix_mautrix_facebook_*` and `matrix_mautrix_instagram_*` variables belong to the deprecated components and do not control the new bridge** ([mautrix-meta](https://github.com/mautrix/meta)), which can be installed using [this playbook](configuring-playbook-bridge-mautrix-meta-messenger.md).
+**Note**: for bridging to Meta's Messenger or Instagram, you would need to add `meta` with an underscore symbol (`_`) or hyphen (`-`) based on the context as prefix to each `SERVICENAME`; add `_` to variables (as in `matrix_mautrix_meta_messenger_configuration_extension_yaml` for example) and `-` to paths of the configuration files (as in `roles/custom/matrix-bridge-mautrix-meta-messenger/templates/config.yaml.j2`), respectively.
 
 There are some additional things you may wish to configure about the bridge before you continue. Each bridge may have additional requirements besides `_enabled: true`. For example, the mautrix-telegram bridge (our documentation page about it is [here](configuring-playbook-bridge-mautrix-telegram.md)) requires the `matrix_mautrix_telegram_api_id` and `matrix_mautrix_telegram_api_hash` variables to be defined. Refer to each bridge's individual documentation page for details about enabling bridges.
 
@@ -23,7 +32,7 @@ There are some additional things you may wish to configure about the bridge befo
 
 By default any user on your homeserver will be able to use the mautrix bridges. To limit who can use them you would need to configure their permissions settings.
 
-Different levels of permission can be granted to users. For example, to **configure a user as an administrator for all bridges**, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+Different levels of permission can be granted to users. For example, to **configure a user as an administrator for all bridges**, add the following configuration to your `vars.yml` file:
 
 ```yaml
 matrix_admin: "@alice:{{ matrix_domain }}"
@@ -46,7 +55,7 @@ You could also redefine the default permissions settings completely, rather than
 
 ### Enable encryption (optional)
 
-[Encryption (End-to-Bridge Encryption, E2BE) support](https://docs.mau.fi/bridges/general/end-to-bridge-encryption.html) is off by default. If you would like to enable encryption, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+[Encryption (End-to-Bridge Encryption, E2BE) support](https://docs.mau.fi/bridges/general/end-to-bridge-encryption.html) is off by default. If you would like to enable encryption, add the following configuration to your `vars.yml` file:
 
 **for all bridges with encryption support**:
 
@@ -66,7 +75,7 @@ matrix_mautrix_SERVICENAME_bridge_encryption_default: true
 
 [Relay mode](https://docs.mau.fi/bridges/general/relay-mode.html) is off by default. Check [the table on the official documentation](https://docs.mau.fi/bridges/general/relay-mode.html#support-table) for bridges which support relay mode.
 
-If you would like to enable it, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+If you would like to enable it, add the following configuration to your `vars.yml` file:
 
 **for all bridges with relay mode support**:
 
@@ -103,7 +112,7 @@ Use `!prefix set-pl 100` to be able for the bot to modify room settings and invi
 
 #### Allow anyone on the homeserver to become a relay user (optional)
 
-By default, only admins are allowed to set themselves as relay users. To allow anyone on your homeserver to set themselves as relay users, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+By default, only admins are allowed to set themselves as relay users. To allow anyone on your homeserver to set themselves as relay users, add the following configuration to your `vars.yml` file:
 
 ```yaml
 matrix_mautrix_SERVICENAME_bridge_relay_admin_only: false
@@ -111,7 +120,7 @@ matrix_mautrix_SERVICENAME_bridge_relay_admin_only: false
 
 ### Set the bot's username (optional)
 
-To set the bot's username, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+To set the bot's username, add the following configuration to your `vars.yml` file:
 
 ```yaml
 matrix_mautrix_SERVICENAME_appservice_bot_username: "BOTNAME"
@@ -119,7 +128,7 @@ matrix_mautrix_SERVICENAME_appservice_bot_username: "BOTNAME"
 
 ### Configure the logging level (optional)
 
-To specify the logging level, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+To specify the logging level, add the following configuration to your `vars.yml` file:
 
 ```yaml
 matrix_mautrix_SERVICENAME_logging_level: warn
@@ -144,16 +153,12 @@ After configuring the playbook, run it with [playbook tags](playbook-tags.md) as
 
 <!-- NOTE: let this conservative command run (instead of install-all) to make it clear that failure of the command means something is clearly broken. -->
 ```sh
-ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,ensure-matrix-users-created,start
+ansible-playbook -i inventory/hosts setup.yml --tags=setup-all,start
 ```
 
-**Notes**:
+The shortcut commands with the [`just` program](just.md) are also available: `just install-all` or `just setup-all`
 
-- The `ensure-matrix-users-created` playbook tag makes the playbook automatically create the bot's user account.
-
-- The shortcut commands with the [`just` program](just.md) are also available: `just install-all` or `just setup-all`
-
-  `just install-all` is useful for maintaining your setup quickly ([2x-5x faster](../CHANGELOG.md#2x-5x-performance-improvements-in-playbook-runtime) than `just setup-all`) when its components remain unchanged. If you adjust your `vars.yml` to remove other components, you'd need to run `just setup-all`, or these components will still remain installed.
+`just install-all` is useful for maintaining your setup quickly ([2x-5x faster](../CHANGELOG.md#2x-5x-performance-improvements-in-playbook-runtime) than `just setup-all`) when its components remain unchanged. If you adjust your `vars.yml` to remove other components, you'd need to run `just setup-all`, or these components will still remain installed. Note these shortcuts run the `ensure-matrix-users-created` tag too.
 
 ## Usage
 
@@ -177,7 +182,7 @@ To set up [Double Puppeting](https://docs.mau.fi/bridges/general/double-puppetin
 
 Appservice Double Puppet is a homeserver appservice through which bridges (and potentially other services) can impersonate any user on the homeserver.
 
-To enable the Appservice Double Puppet service, add the following configuration to your `inventory/host_vars/matrix.example.com/vars.yml` file:
+To enable the Appservice Double Puppet service, add the following configuration to your `vars.yml` file:
 
 ```yaml
 matrix_appservice_double_puppet_enabled: true
