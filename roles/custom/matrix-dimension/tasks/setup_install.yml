@@ -105,8 +105,8 @@
     path: "{{ matrix_dimension_base_path }}/labels"
     state: touch
     mode: 0640
-    owner: "{{ matrix_user_username }}"
-    group: "{{ matrix_user_groupname }}"
+    owner: "{{ matrix_user_name }}"
+    group: "{{ matrix_group_name }}"
 
 - name: Ensure Dimension labels installed
   ansible.builtin.template:
